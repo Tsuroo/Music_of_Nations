@@ -194,7 +194,7 @@ int scenario writeMusicMoodToFile(string musicMood)
     else if (musicMood == "age_up")
     {
         open_file("Rise_of_Music.xml");
-        file_write_text("MUSIC_MOOD", "age_upe");
+        file_write_text("MUSIC_MOOD", "age_up");
         close_file();
     }
     else

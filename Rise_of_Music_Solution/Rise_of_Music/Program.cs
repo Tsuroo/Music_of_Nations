@@ -21,12 +21,8 @@ namespace Rise_of_Music
         /// <param name="args">Not currently used.</param>
         public static void Main(string[] args)
         {
-            // TODO: THIS IS CURRENTLY HARD CODED, BUT SHOULDN'T BE
-            args = new String[1];
-            args[0] = @"C:\Users\Derek Webb\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music.xml";
-
             // Initializes the application and returns success or failure
-            bool initSuccess = Init(args);
+            bool initSuccess = Init();
 
             // If the app failed to initialize
             if (!initSuccess)
@@ -77,8 +73,6 @@ namespace Rise_of_Music
                         {
                             // Delete it
                             File.Delete(riseOfMusicXmlFilePath);
-
-                            Console.WriteLine("Removed current \"Rise_of_Music.xml\" file successfully.");
                         }
                         catch (Exception e)
                         {
@@ -106,7 +100,7 @@ namespace Rise_of_Music
         /// Initializes the program and checks for existance of necessary directories.
         /// </summary>
         /// <returns>True if successfully initialized, false otherwise.</returns>
-        private static bool Init(string[] args)
+        private static bool Init()
         {
             Console.WriteLine("=================================");
             Console.WriteLine("          Rise of Music");
@@ -114,8 +108,11 @@ namespace Rise_of_Music
 
             Console.WriteLine("Initializing");
 
-            Console.WriteLine("Setting Rise_of_Music.xml file path to: " + args[0]);
-            riseOfMusicXmlFilePath = args[0];
+            // Get the username and Rise_of_Music.xml path
+            riseOfMusicXmlFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music.xml";
+
+            Console.WriteLine("Setting Rise_of_Music.xml file path to: " + riseOfMusicXmlFilePath);
+            
 
             String battleDefeatDirPath = "sounds/tracks/battle_defeat/";
             String battleVictoryDirPath = "sounds/tracks/battle_victory/";

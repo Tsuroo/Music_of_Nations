@@ -25,7 +25,7 @@ namespace Rise_of_Music
 
             set
             {
-                Console.WriteLine("music_mood=" + value);
+                Console.WriteLine("Setting Music Mood: " + value);
 
                 // If the mood is "age_up"
                 if (value == "age_up")
@@ -151,9 +151,8 @@ namespace Rise_of_Music
                 // 10 iterations of the volume decreasing
                 for (int i = 9; i > 0; --i)
                 {
-                    Console.WriteLine("Waiting...");
                     // Wait inbetween each volume change to make it smooth
-                    Thread.Sleep(150);
+                    Thread.Sleep(100);
 
                     switch (i)
                     {
