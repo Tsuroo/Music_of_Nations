@@ -5,21 +5,28 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 
-namespace Music_of_Nations
+namespace Rise_of_Music
 {
     public class Program
     {
         private static MusicPlayer musicPlayer = null;
 
+        private static String riseOfMusicXmlFilePath = null;
+
         /// <summary>
-        /// The entry point to Music of Nations.
+        /// The entry point to Rise of Music.
         /// </summary>
         /// <param name="args">Not currently used.</param>
         public static void Main(string[] args)
         {
+            // TODO: THIS IS CURRENTLY HARD CODED, BUT SHOULDN'T BE
+            args = new String[1];
+            args[0] = @"C:\Users\Derek Webb\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music.xml";
+
             // Initializes the application and returns success or failure
-            bool initSuccess = Init();
+            bool initSuccess = Init(args);
 
             // If the app failed to initialize
             if (!initSuccess)
@@ -35,61 +42,47 @@ namespace Music_of_Nations
             }
             else // Else, the app successfully initialized
             {
-                Console.WriteLine("Music of Nations initialized successfully");
+                Console.WriteLine("Rise of Music initialized successfully");
             }
 
             // Create the MusicPlayer object
             musicPlayer = new MusicPlayer();
 
-            // Begin looking for a Music_of_Nations.xml file to read
+            // Begin looking for a Rise_of_Music.xml file to read
             new Thread(() =>
             {
                 while (true)
                 {
-                    // If a Music_of_Nations.xml file exists
-                    if (File.Exists("Music_of_Nations.xml"))
+                    // If a Rise_of_Music.xml file exists
+                    if (File.Exists(riseOfMusicXmlFilePath))
                     {
-                        // Parse it for the "music_mood" value
-                        using (StreamReader file = new StreamReader("Music_of_Nations.xml"))
+                        // Open the XML document
+                        XmlDocument xmlDocument = new XmlDocument();
+                        xmlDocument.Load(riseOfMusicXmlFilePath);
+
+                        // Find the MUSIC_MOOD node
+                        XmlNode musicMoodNode = xmlDocument.SelectSingleNode("/ROOT/MUSIC_MOOD");
+
+                        // Set the current music mood to the value in the XML file
+                        musicPlayer.Mood = musicMoodNode.InnerText;
+
+                        // If we haven't started the music player yet - start it
+                        if (!musicPlayer.HasStartedPlaying)
                         {
-                            // While it's not the end of the file
-                            while (!file.EndOfStream)
-                            {
-                                // Get the next line
-                                String line = file.ReadLine();
-
-                                // Make sure this line has the key we're looking for
-                                if (line.Contains("music_mood"))
-                                {
-                                    // Split the string by "music_mood="
-                                    String[] splitLinePieces = line.Split(new String[] { "music_mood=" }, StringSplitOptions.RemoveEmptyEntries);
-                                    
-                                    // Take the second piece, and split again to get just the value we're looking for
-                                    String[] splitLinePieces2 = splitLinePieces[1].Split(new char[] { '<' });
-
-                                    // Read the value of the first element - this is our new music mood
-                                    musicPlayer.Mood = splitLinePieces2[0];
-
-                                    // If we haven't started the music player yet - start it
-                                    if (!musicPlayer.HasStartedPlaying)
-                                    {
-                                        musicPlayer.Play();
-                                    }
-                                }
-                            }
+                            musicPlayer.Play();
                         }
 
-                        // Remove the Music_of_Nations.xml
+                        // Remove the Rise_of_Music.xml
                         try
                         {
                             // Delete it
-                            File.Delete("Music_of_Nations.xml");
+                            File.Delete(riseOfMusicXmlFilePath);
 
-                            Console.WriteLine("Removed current \"Music_of_Nations.xml\" file successfully.");
+                            Console.WriteLine("Removed current \"Rise_of_Music.xml\" file successfully.");
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("Unable to delete current \"Music_of_Nations.xml\" file.  Please delete file and restart.");
+                            Console.WriteLine("Unable to delete current \"Rise_of_Music.xml\" file.  Please delete file and restart.");
                         }
                     }
 
@@ -113,13 +106,16 @@ namespace Music_of_Nations
         /// Initializes the program and checks for existance of necessary directories.
         /// </summary>
         /// <returns>True if successfully initialized, false otherwise.</returns>
-        private static bool Init()
+        private static bool Init(string[] args)
         {
             Console.WriteLine("=================================");
             Console.WriteLine("          Rise of Music");
             Console.WriteLine("=================================");
 
             Console.WriteLine("Initializing");
+
+            Console.WriteLine("Setting Rise_of_Music.xml file path to: " + args[0]);
+            riseOfMusicXmlFilePath = args[0];
 
             String battleDefeatDirPath = "sounds/tracks/battle_defeat/";
             String battleVictoryDirPath = "sounds/tracks/battle_victory/";
@@ -141,19 +137,20 @@ namespace Music_of_Nations
             Console.WriteLine("Directory exists (" + loseDirPath + "): " + loseDirExists);
             Console.WriteLine("Directory exists (" + winDirPath + "): " + winDirExists);
 
-            // If a Music_of_Nations.xml file exists
-            if (File.Exists("Music_of_Nations.xml"))
+            // If a Rise_of_Music.xml file exists
+            
+            if (File.Exists(riseOfMusicXmlFilePath))
             {
                 try
                 {
                     // Delete it
-                    File.Delete("Music_of_Nations.xml");
+                    File.Delete(riseOfMusicXmlFilePath);
 
-                    Console.WriteLine("Removed current \"Music_of_Nations.xml\" file successfully.");
+                    Console.WriteLine("Removed current \"Rise_of_Music.xml\" file successfully.");
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Unable to delete current \"Music_of_Nations.xml\" file.  Please delete file and restart.");
+                    Console.WriteLine("Unable to delete current \"Rise_of_Music.xml\" file.  Please delete file and restart.");
                     return false;
                 }
             }

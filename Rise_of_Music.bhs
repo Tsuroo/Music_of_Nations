@@ -1,0 +1,219 @@
+int scenario fifo(int newValue, ref int value0, ref int value1, ref int value2, ref int value3, ref int value4, ref int value5, ref int value6);
+int scenario printValues(int unitsKilledCount, int unitsLostCount, int buildingCount);
+int scenario writeMusicMoodToFile(string musicMood);
+
+scenario
+{
+    // Constants
+    labels
+    {
+        UPDATE_TIME_SEC_DELTA = 20, // The number of seconds between each update
+        TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD = 120, // The number of seconds to wait to see if fighting has stopped in order to switch to MUSIC_MOOD_ECONOMIC
+        UNITS_LOST_DELTA_THRESHOLD = 10, // The number of units to lose before the music will change
+        UNITS_KILLED_DELTA_THRESHOLD = 10, // The number of units to kill before the music will change
+        BUILDINGS_DELTA_THRESHOLD = 3, // The number of buildings to lose before the music will change
+        MUSIC_MOOD_ECONOMIC = "economic", // The economic music mood
+        MUSIC_MOOD_BATTLE_VICTORY = "battle_victory", // The battle_victory music mood
+        MUSIC_MOOD_BATTLE_DEFEAT = "battle_defeat", // The battle_defeat music mood
+        MUSIC_MOOD_WIN = "win", // The win music mood
+        MUSIC_MOOD_LOSE = "lose", // The lose music mood
+        MUSIC_MOOD_AGE_UP = "age_up" // The age up music mood (this keeps the current mood, but fades out the current song and starts another)
+    }
+
+    // ========================= Initial values =========================
+    // The last time that we updated all our values and checked for music mood change conditions
+    static int lastUpdateTimeSec = time_sec();
+
+    // The player's number
+    static int playerNumber = get_console_player();
+
+    // The total number of enemy units the player has killed
+    static int unitsKilledCount = num_units_killed(playerNumber);
+
+    // The total number of units the player has lost
+    static int unitsLostCount = num_units_lost(playerNumber);
+
+    // The number of buildings the player has
+    static int buildingsCount = num_buildings(playerNumber);
+    
+    // The current age the player is in
+    static int currentAge = age(playerNumber);
+    
+    // The current music mood
+    static string currentMusicMood = MUSIC_MOOD_ECONOMIC;
+    
+    // Time since last battle
+    static int timeSecSinceLastbattle = 0;
+
+    // This functions runs only one time at the beginning of the game
+    run_once
+    {
+        // Start the game with the ECONOMIC music mood
+        writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC);
+    }
+
+    // ========================= Main script body =========================
+    // Get the current time
+    int currentTimeSec = time_sec();
+
+    // If the current time is greater than the last update time + the delta
+    if (currentTimeSec > lastUpdateTimeSec + UPDATE_TIME_SEC_DELTA)
+    {
+        // Get the new values
+        int newUnitsKilledCount = num_units_killed(playerNumber);
+        int newUnitsLostCount = num_units_lost(playerNumber);
+        int newBuildingsCount = num_buildings(playerNumber);
+        
+        // Get the deltas between old a new values
+        int unitsKilledCountDelta = newUnitsKilledCount - unitsKilledCount;
+        int unitsLostCountDelta = newUnitsLostCount - unitsLostCount;
+        int buildingsCountDelta = newBuildingsCount - buildingsCount;
+        
+        // If the player killed units AND they have killed more units than they lost
+        if (unitsKilledCountDelta > UNITS_KILLED_DELTA_THRESHOLD && unitsKilledCountDelta > unitsLostCountDelta)
+        {
+            // If the current music mood is not MUSIC_MOOD_BATTLE_VICTORY
+            if (currentMusicMood != MUSIC_MOOD_BATTLE_VICTORY)
+            {
+                // Set the current music mood
+                currentMusicMood = MUSIC_MOOD_BATTLE_VICTORY;
+            
+                // Write the music mood to a file
+                writeMusicMoodToFile(MUSIC_MOOD_BATTLE_VICTORY);
+            }
+            
+            // Set now as the time since last battle
+            timeSecSinceLastbattle = currentTimeSec;
+        }
+        else if (unitsLostCountDelta > UNITS_LOST_DELTA_THRESHOLD && unitsLostCountDelta > unitsKilledCountDelta) // If the player lost units AND they lost more units than they killed
+        {
+            // If the current music mood is not MUSIC_MOOD_BATTLE_DEFEAT
+            if (currentMusicMood != MUSIC_MOOD_BATTLE_DEFEAT)
+            {
+                // Set the current music mood
+                currentMusicMood = MUSIC_MOOD_BATTLE_DEFEAT;
+                
+                // Write the music mood to a file
+                writeMusicMoodToFile(MUSIC_MOOD_BATTLE_DEFEAT);
+            }
+            
+            // Set now as the time since last battle
+            timeSecSinceLastbattle = currentTimeSec;
+        }
+        else if (buildingsCountDelta < 0 && -buildingsCountDelta > BUILDINGS_DELTA_THRESHOLD)  // If the player hasn't killed or lost any units, they may still have lost some buildings
+        {
+            // If the current music mood is not MUSIC_MOOD_BATTLE_DEFEAT
+            if (currentMusicMood != MUSIC_MOOD_BATTLE_DEFEAT)
+            {
+                // Set the current music mood
+                currentMusicMood = MUSIC_MOOD_BATTLE_DEFEAT;
+                
+                // Write the music mood to a file
+                writeMusicMoodToFile(MUSIC_MOOD_BATTLE_DEFEAT);
+            }
+            
+            // Set now as the time since last battle
+            timeSecSinceLastbattle = currentTimeSec;
+        }
+        else // The player is not currently fighting
+        {
+            // If the current time is > than time since last battle + the wait period after a battle
+            if (currentTimeSec > timeSecSinceLastBattle + TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD)
+            {
+                // If the current music mood is not MUSIC_MOOD_ECONOMIC
+                if (currentMusicMood != MUSIC_MOOD_ECONOMIC)
+                {
+                    // Set the current music mood
+                    currentMusicMood = MUSIC_MOOD_ECONOMIC;
+                 
+                    // Write the music mood to a file
+                    writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC);
+                }
+            }
+        }
+        
+        // Update our values
+        unitsKilledCount = newUnitsKilledCount;
+        unitsLostCount = newUnitsLostCount;
+        buildingsCount = newBuildingsCount;
+        lastUpdateTimeSec = currentTimeSec;
+    }
+    
+    // Gets the age the player is currently in
+    int age = get_current_age(playerNumber);
+    
+    // If the player has aged up
+    if (age > currentAge)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP);
+        
+        // Set the current age
+        currentAge = age;
+    }
+    
+    // TODO: Check to see if the game is over
+}
+
+// Writes music mood information to a file
+int scenario writeMusicMoodToFile(string musicMood)
+{
+    set_game_msg_color("red");
+    print_game_msg("music_mood=" + musicMood);
+
+    if (musicMood == "economic")
+    {
+        open_file("Rise_of_Music.xml");
+        file_write_text("MUSIC_MOOD", "economic");
+        close_file();
+    }
+    else if (musicMood == "battle_victory")
+    {
+        open_file("Rise_of_Music.xml");
+        file_write_text("MUSIC_MOOD", "battle_victory");
+        close_file();
+    }
+    else if (musicMood == "battle_defeat")
+    {
+        open_file("Rise_of_Music.xml");
+        file_write_text("MUSIC_MOOD", "battle_defeat");
+        close_file();
+    }
+    else if (musicMood == "win")
+    {
+        open_file("Rise_of_Music.xml");
+        file_write_text("MUSIC_MOOD", "win");
+        close_file();
+    }
+    else if (musicMood == "lose")
+    {
+        open_file("Rise_of_Music.xml");
+        file_write_text("MUSIC_MOOD", "lose");
+        close_file();
+    }
+    else if (musicMood == "age_up")
+    {
+        open_file("Rise_of_Music.xml");
+        file_write_text("MUSIC_MOOD", "age_upe");
+        close_file();
+    }
+    else
+    {
+        // Return failure
+        return -1;
+    }
+    
+    // Return success
+    return 1;
+}
+
+// Print all values
+int scenario printValues(int unitsKilledCount, int unitsLostCount, int buildingCount)
+{
+    print_game_msg("unitsKilledCount: " + unitsKilledCount);
+    print_game_msg("unitsLostCount: " + unitsLostCount);
+    print_game_msg("buildingsCount: " + buildingCount);
+    
+    // Return success
+    return 1;
+}

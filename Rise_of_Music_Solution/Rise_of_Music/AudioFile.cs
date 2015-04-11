@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Music_of_Nations
+namespace Rise_of_Music
 {
     public class AudioFile
     {
