@@ -3,41 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Music_of_Nations
 {
     public class Program
     {
-        /// <summary>
-        /// The directory path where the different music mood directories are located.
-        /// </summary>
-        private static String SoundsTracksDirPath = "sounds/tracks/";
-
-        /// <summary>
-        /// The "battle_defeat" music mood track directory path.
-        /// </summary>
-        private static String BattleDefeatDirPath = SoundsTracksDirPath + "battle_defeat/";
-
-        /// <summary>
-        /// The "battle_victory" music mood track directory path.
-        /// </summary>
-        private static String BattleVictoryDirPath = SoundsTracksDirPath + "battle_victory/";
-
-        /// <summary>
-        /// The "economic" music mood track directory path.
-        /// </summary>
-        private static String EconomicDirPath = SoundsTracksDirPath + "economic/";
-
-        /// <summary>
-        /// The "lose" music mood track directory path.
-        /// </summary>
-        private static String LoseDirPath = SoundsTracksDirPath + "lose/";
-
-        /// <summary>
-        /// The "win" music mood track directory path.
-        /// </summary>
-        private static String WinDirPath = SoundsTracksDirPath + "win/";
+        private static MusicPlayer musicPlayer = null;
 
         /// <summary>
         /// The entry point to Music of Nations.
@@ -45,9 +18,6 @@ namespace Music_of_Nations
         /// <param name="args">Not currently used.</param>
         public static void Main(string[] args)
         {
-            // Prints the header
-            PrintWelcomeMessage();
-
             // Initializes the application and returns success or failure
             bool initSuccess = Init();
 
@@ -68,50 +38,62 @@ namespace Music_of_Nations
                 Console.WriteLine("Music of Nations initialized successfully");
             }
 
-            // TODO: Begin listening in the current directory for a "Music_of_Nations.xml" file
-                // TODO: Read the file for "music_mood=***" string
-                // TODO: Set the music_mood so that the next song will be from that mood directory
+            // Create the MusicPlayer object
+            musicPlayer = new MusicPlayer();
 
-            MusicPlayer musicPlayer = new MusicPlayer();
-            musicPlayer.Mood = "economic";
-            musicPlayer.Play();
+            // Begin looking for a Music_of_Nations.xml file to read
+            new Thread(() =>
+            {
+                while (true)
+                {
+                    // If a Music_of_Nations.xml file exists
+                    if (File.Exists("Music_of_Nations.xml"))
+                    {
+                        // Parse it for the "music_mood" value
+                        using (StreamReader file = new StreamReader("Music_of_Nations.xml"))
+                        {
+                            // While it's not the end of the file
+                            while (!file.EndOfStream)
+                            {
+                                // Get the next line
+                                String line = file.ReadLine();
 
-            Console.WriteLine("Press any key to switch music mood to \"battle_victory\"...");
-            Console.ReadKey();
+                                // Make sure this line has the key we're looking for
+                                if (line.Contains("music_mood"))
+                                {
+                                    // Split the string by "music_mood="
+                                    String[] splitLinePieces = line.Split(new String[] { "music_mood=" }, StringSplitOptions.RemoveEmptyEntries);
+                                    
+                                    // Take the second piece, and split again to get just the value we're looking for
+                                    String[] splitLinePieces2 = splitLinePieces[1].Split(new char[] { '<' });
 
-            musicPlayer.Mood = "battle_victory";
+                                    // Read the value of the first element - this is our new music mood
+                                    musicPlayer.Mood = splitLinePieces2[0];
 
-            Console.WriteLine("Press any key to switch music mood to \"age_up\"...");
-            Console.ReadKey();
+                                    // If we haven't started the music player yet - start it
+                                    if (!musicPlayer.HasStartedPlaying)
+                                    {
+                                        musicPlayer.Play();
+                                    }
+                                }
+                            }
+                        }
+                    }
 
-            musicPlayer.Mood = "age_up";
-
-            Console.WriteLine("Press any key to switch music mood to \"battle_defeat\"...");
-            Console.ReadKey();
-
-            musicPlayer.Mood = "battle_defeat";
+                    // Wait 1 second before checking again
+                    Thread.Sleep(1000);
+                }
+            }).Start();
 
             // Allow the user to exit once they have read any messages
-            Console.WriteLine("Press any key to exit...");
+            Console.WriteLine("NOTE: Press any key (at any time) or close the window to exit.");
             Console.ReadKey();
 
+            // Dispose of the MusicPlayer object
             musicPlayer.Dispose();
 
             // Exit with success status code
             Environment.Exit(0);
-        }
-
-        public static void Test(object o, EventArgs e)
-        {
-            Console.WriteLine("HELLO, WORLD!");
-        }
-
-        private static void SetMood(String mood)
-        {
-            if (mood == "battle_defeat")
-            {
-
-            }
         }
 
         /// <summary>
@@ -120,34 +102,51 @@ namespace Music_of_Nations
         /// <returns>True if successfully initialized, false otherwise.</returns>
         private static bool Init()
         {
-            Console.WriteLine("Initializing");
-
-            // Check the existance of these directories
-            bool battleDefeatDirExists = Directory.Exists(BattleDefeatDirPath);
-            bool battleVictoryDirExists = Directory.Exists(BattleVictoryDirPath);
-            bool economicDirExists = Directory.Exists(EconomicDirPath);
-            bool loseDirExists = Directory.Exists(LoseDirPath);
-            bool winDirExists = Directory.Exists(WinDirPath);
-
-            // Print the results
-            Console.WriteLine("Directory exists (" + BattleDefeatDirPath + "): " + battleDefeatDirExists);
-            Console.WriteLine("Directory exists (" + BattleVictoryDirPath + "): " + battleVictoryDirExists);
-            Console.WriteLine("Directory exists (" + EconomicDirPath + "): " + economicDirExists);
-            Console.WriteLine("Directory exists (" + LoseDirPath + "): " + loseDirExists);
-            Console.WriteLine("Directory exists (" + WinDirPath + "): " + winDirExists);
-
-            // Returns true if all directories exist, false if even one does not exist
-            return (battleDefeatDirExists && battleVictoryDirExists && economicDirExists && loseDirExists && winDirExists);
-        }
-
-        /// <summary>
-        /// Prints the welcome header.
-        /// </summary>
-        private static void PrintWelcomeMessage()
-        {
             Console.WriteLine("==============================");
             Console.WriteLine("       Music of Nations");
             Console.WriteLine("==============================");
+
+            Console.WriteLine("Initializing");
+
+            String battleDefeatDirPath = "sounds/tracks/battle_defeat/";
+            String battleVictoryDirPath = "sounds/tracks/battle_victory/";
+            String economicDirPath = "sounds/tracks/economic/";
+            String loseDirPath = "sounds/tracks/lose/";
+            String winDirPath = "sounds/tracks/win/";
+
+            // Check the existance of these directories
+            bool battleDefeatDirExists = Directory.Exists(battleDefeatDirPath);
+            bool battleVictoryDirExists = Directory.Exists(battleVictoryDirPath);
+            bool economicDirExists = Directory.Exists(economicDirPath);
+            bool loseDirExists = Directory.Exists(loseDirPath);
+            bool winDirExists = Directory.Exists(winDirPath);
+
+            // Print the results
+            Console.WriteLine("Directory exists (" + battleDefeatDirPath + "): " + battleDefeatDirExists);
+            Console.WriteLine("Directory exists (" + battleVictoryDirPath + "): " + battleVictoryDirExists);
+            Console.WriteLine("Directory exists (" + economicDirPath + "): " + economicDirExists);
+            Console.WriteLine("Directory exists (" + loseDirPath + "): " + loseDirExists);
+            Console.WriteLine("Directory exists (" + winDirPath + "): " + winDirExists);
+
+            // If a Music_of_Nations.xml file exists
+            if (File.Exists("Music_of_Nations.xml"))
+            {
+                try
+                {
+                    // Delete it
+                    File.Delete("Music_of_Nations.xml");
+
+                    Console.WriteLine("Removed current \"Music_of_Nations.xml\" file successfully.");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unable to delete current \"Music_of_Nations.xml\" file.  Please delete file and restart.");
+                    return false;
+                }
+            }
+
+            // Returns true if all directories exist, false if even one does not exist
+            return (battleDefeatDirExists && battleVictoryDirExists && economicDirExists && loseDirExists && winDirExists);
         }
     }
 }

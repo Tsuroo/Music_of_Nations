@@ -11,6 +11,8 @@ namespace Music_of_Nations
 {
     public class MusicPlayer : IDisposable
     {
+        public bool HasStartedPlaying { private set; get; }
+
         /// <summary>
         /// Gets or sets the current music mood.
         /// </summary>
@@ -59,6 +61,9 @@ namespace Music_of_Nations
 
         public MusicPlayer()
         {
+            // The MusicPlayer has not started playing yet
+            this.HasStartedPlaying = false;
+
             // Set the SoundOut object
             this.SoundOut = GetSoundOut();
 
@@ -117,6 +122,9 @@ namespace Music_of_Nations
         /// </summary>
         public void Play()
         {
+            // Set the fact that we're now playing audio
+            this.HasStartedPlaying = true;
+
             // Get the audio file path to play
             String audioFilePath = this.GetUnplayedFileForCurrentMood();
 
@@ -235,6 +243,9 @@ namespace Music_of_Nations
                 {
                     // Set it's HasBeenPlayed value
                     audioFiles[index].HasBeenPlayed = true;
+
+                    // Set this audio file as the current audio file
+                    this.currentAudioFile = audioFiles[index];
 
                     // Return this audio file to be played
                     return audioFiles[index].Path;
