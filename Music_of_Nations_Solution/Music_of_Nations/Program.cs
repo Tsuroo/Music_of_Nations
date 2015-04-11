@@ -78,6 +78,19 @@ namespace Music_of_Nations
                                 }
                             }
                         }
+
+                        // Remove the Music_of_Nations.xml
+                        try
+                        {
+                            // Delete it
+                            File.Delete("Music_of_Nations.xml");
+
+                            Console.WriteLine("Removed current \"Music_of_Nations.xml\" file successfully.");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Unable to delete current \"Music_of_Nations.xml\" file.  Please delete file and restart.");
+                        }
                     }
 
                     // Wait 1 second before checking again

@@ -25,6 +25,8 @@ namespace Music_of_Nations
 
             set
             {
+                Console.WriteLine("music_mood=" + value);
+
                 // If the mood is "age_up"
                 if (value == "age_up")
                 {
@@ -33,7 +35,6 @@ namespace Music_of_Nations
                 }
                 else // Else, set the mood
                 {
-                    Console.WriteLine("Setting music mood to: " + value);
                     this._Mood = value;
                 }
             }
