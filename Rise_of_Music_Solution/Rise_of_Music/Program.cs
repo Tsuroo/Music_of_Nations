@@ -115,9 +115,9 @@ namespace Music_of_Nations
         /// <returns>True if successfully initialized, false otherwise.</returns>
         private static bool Init()
         {
-            Console.WriteLine("==============================");
-            Console.WriteLine("       Music of Nations");
-            Console.WriteLine("==============================");
+            Console.WriteLine("=================================");
+            Console.WriteLine("          Rise of Music");
+            Console.WriteLine("=================================");
 
             Console.WriteLine("Initializing");
 

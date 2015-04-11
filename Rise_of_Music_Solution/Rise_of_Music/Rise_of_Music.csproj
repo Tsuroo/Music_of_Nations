@@ -7,8 +7,8 @@
     <ProjectGuid>{B398F78F-0606-43A5-AAAE-26EF3C22702F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Music_of_Nations</RootNamespace>
-    <AssemblyName>Music_of_Nations</AssemblyName>
+    <RootNamespace>Rise_of_Music</RootNamespace>
+    <AssemblyName>Rise_of_Music</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
