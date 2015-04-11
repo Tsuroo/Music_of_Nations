@@ -57,7 +57,7 @@ namespace Music_of_Nations
                 Console.WriteLine("Failed to initialize");
 
                 // Allow the user to exit once they have read any messages
-                Console.Write("Press any key to continue...");
+                Console.Write("Press any key to exit...");
                 Console.ReadKey();
 
                 // Exit with failure status code
@@ -68,12 +68,50 @@ namespace Music_of_Nations
                 Console.WriteLine("Music of Nations initialized successfully");
             }
 
-            // Allow the user to exit once they have read any messages
-            Console.Write("Press any key to continue...");
+            // TODO: Begin listening in the current directory for a "Music_of_Nations.xml" file
+                // TODO: Read the file for "music_mood=***" string
+                // TODO: Set the music_mood so that the next song will be from that mood directory
+
+            MusicPlayer musicPlayer = new MusicPlayer();
+            musicPlayer.Mood = "economic";
+            musicPlayer.Play();
+
+            Console.WriteLine("Press any key to switch music mood to \"battle_victory\"...");
             Console.ReadKey();
+
+            musicPlayer.Mood = "battle_victory";
+
+            Console.WriteLine("Press any key to switch music mood to \"age_up\"...");
+            Console.ReadKey();
+
+            musicPlayer.Mood = "age_up";
+
+            Console.WriteLine("Press any key to switch music mood to \"battle_defeat\"...");
+            Console.ReadKey();
+
+            musicPlayer.Mood = "battle_defeat";
+
+            // Allow the user to exit once they have read any messages
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
+
+            musicPlayer.Dispose();
 
             // Exit with success status code
             Environment.Exit(0);
+        }
+
+        public static void Test(object o, EventArgs e)
+        {
+            Console.WriteLine("HELLO, WORLD!");
+        }
+
+        private static void SetMood(String mood)
+        {
+            if (mood == "battle_defeat")
+            {
+
+            }
         }
 
         /// <summary>
