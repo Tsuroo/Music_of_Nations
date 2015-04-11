@@ -33,6 +33,7 @@ namespace Music_of_Nations
                 }
                 else // Else, set the mood
                 {
+                    Console.WriteLine("Setting music mood to: " + value);
                     this._Mood = value;
                 }
             }
