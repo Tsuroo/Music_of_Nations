@@ -4,6 +4,8 @@
 :: Make sure the directory structure is in place before you try to run this script.
 :: The directory structure is as follows: tracks\battle_defeat\ - tracks\battle_victory\ - tracks\economic\ - tracks\lose\ - tracks\win\
 
+:: I read through these instructions to get create this batch file: https://wiki.videolan.org/Documentation:Streaming_HowTo_New/
+
 vlc -I dummy --no-sout-video --sout-audio --no-sout-rtp-sap --no-sout-standard-sap --ttl=1 --sout-keep --sout "#transcode{acodec=mp3,ab=320,channels=2}:std{access=file,mux=raw,dst=tracks\battle_victory\Galleons.mp3}" dvd:///D:\#1:1-1:1 vlc://quit
 vlc -I dummy --no-sout-video --sout-audio --no-sout-rtp-sap --no-sout-standard-sap --ttl=1 --sout-keep --sout "#transcode{acodec=mp3,ab=320,channels=2}:std{access=file,mux=raw,dst=tracks\economic\Sri Lanka.mp3}" dvd:///D:\#1:2-1:2 vlc://quit
 vlc -I dummy --no-sout-video --sout-audio --no-sout-rtp-sap --no-sout-standard-sap --ttl=1 --sout-keep --sout "#transcode{acodec=mp3,ab=320,channels=2}:std{access=file,mux=raw,dst=tracks\economic\Simple Song.mp3}" dvd:///D:\#1:3-1:3 vlc://quit
