@@ -15,6 +15,10 @@ namespace Rise_of_Music
 
         private static String riseOfMusicXmlFilePath = null;
 
+        private static String currentUserDatFilePath = null;
+
+        private static DateTime currentUserDatFileLastWriteTime = DateTime.Now;
+
         /// <summary>
         /// The entry point to Rise of Music.
         /// </summary>
@@ -43,6 +47,12 @@ namespace Rise_of_Music
 
             // Create the MusicPlayer object
             musicPlayer = new MusicPlayer();
+
+            // Set the current date modified for the current user DAT file
+            currentUserDatFileLastWriteTime = File.GetLastWriteTime(currentUserDatFilePath);
+
+            // Set the volume for the MusicPlayer
+            musicPlayer.Volume = GetCurrentUserVolumeSetting();
 
             // Begin looking for a Rise_of_Music.xml file to read
             new Thread(() =>
@@ -80,6 +90,16 @@ namespace Rise_of_Music
                         }
                     }
 
+                    // Check to see if the user's DAT has been modified (possibly with a change to music volume).
+                    if (File.GetLastWriteTime(currentUserDatFilePath) > currentUserDatFileLastWriteTime)
+                    {
+                        // The file has been written to; re-check the music volume node and set it in the music player
+                        musicPlayer.Volume = GetCurrentUserVolumeSetting();
+
+                        // Reset the last write time
+                        currentUserDatFileLastWriteTime = File.GetLastWriteTime(currentUserDatFilePath);
+                    }
+
                     // Wait 1 second before checking again
                     Thread.Sleep(1000);
                 }
@@ -96,6 +116,47 @@ namespace Rise_of_Music
             Environment.Exit(0);
         }
 
+        private static float GetCurrentUserVolumeSetting()
+        {
+            // Open the XML document
+            XmlDocument xmlDocument = new XmlDocument();
+            xmlDocument.Load(currentUserDatFilePath);
+
+            // Find the ROOT/PLAYER_PREFS/MUSIC_VOL node
+            XmlNode musicVolumeNode = xmlDocument.SelectSingleNode("/ROOT/PLAYER_PREFS/MUSIC_VOL");
+
+            // Get the string value of "value" (ranges from 0-255)
+            String musicVolumeString = musicVolumeNode.Attributes["value"].Value;
+
+            // Cast this string to an int
+            int musicVolumeInt = int.Parse(musicVolumeString);
+
+            // Calculate the float ranging from 0-1
+            // Divide by 255 because that is the max the musicVolumeInt could be.
+            float musicVolumeFloat = (float)musicVolumeInt / (float)255;
+
+            return musicVolumeFloat;
+        }
+
+        /// <summary>
+        /// Reads the current_user.xml file to determine the current user in Rise of Nations.
+        /// </summary>
+        /// <returns></returns>
+        private static String GetCurrentUsername()
+        {
+            String currentUserFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\playerprofile\current_user.xml";
+
+            // Open the XML document
+            XmlDocument xmlDocument = new XmlDocument();
+            xmlDocument.Load(currentUserFilePath);
+
+            // Find the CURRENT_USER node
+            XmlNode currentUserNode = xmlDocument.SelectSingleNode("/ROOT/CURRENT_USER");
+
+            // Return the name value
+            return currentUserNode.Attributes["name"].Value;
+        }
+
         /// <summary>
         /// Initializes the program and checks for existance of necessary directories.
         /// </summary>
@@ -108,11 +169,27 @@ namespace Rise_of_Music
 
             Console.WriteLine("Initializing");
 
-            // Get the username and Rise_of_Music.xml path
+            // Get the Rise_of_Music.xml path
             riseOfMusicXmlFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music.xml";
-
             Console.WriteLine("Setting Rise_of_Music.xml file path to: " + riseOfMusicXmlFilePath);
-            
+
+            // Get the current user in Rise of Nations
+            String currentUser = GetCurrentUsername();
+            Console.WriteLine("Current user in Rise of Nations: " + currentUser);
+
+            // Check that the user's dat file exists
+            String datFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\playerprofile\" + currentUser.ToLower() + ".dat";
+            if (File.Exists(datFilePath))
+            {
+                Console.WriteLine("Current user DAT file exists (" + datFilePath + "): True");
+
+                // Set the DAT file path
+                currentUserDatFilePath = datFilePath;
+            }
+            else
+            {
+                Console.WriteLine("Current user DAT file exists (" + datFilePath + "): False");
+            }
 
             String battleDefeatDirPath = "sounds/tracks/battle_defeat/";
             String battleVictoryDirPath = "sounds/tracks/battle_victory/";

@@ -20,7 +20,7 @@ namespace Rise_of_Music
         {
             get
             {
-                return _Mood;
+                return this._Mood;
             }
 
             set
@@ -40,6 +40,25 @@ namespace Rise_of_Music
             }
         }
         private String _Mood = "economic";
+
+        /// <summary>
+        /// Gets or sets the current volume of the music player.
+        /// </summary>
+        public float Volume
+        {
+            get
+            {
+                return this._Volume;
+            }
+
+            set
+            {
+                Console.WriteLine("Setting Music Volume: " + value);
+                this._Volume = value;
+                this.SoundOut.Volume = value;
+            }
+        }
+        private float _Volume = 0f;
 
         /// <summary>
         /// The device to send audio to.
@@ -136,6 +155,9 @@ namespace Rise_of_Music
                 // Initialize the SoundOut with an audio file
                 this.SoundOut.Initialize(CSCore.Codecs.CodecFactory.Instance.GetCodec(audioFilePath));
 
+                // Set the volume
+                this.SoundOut.Volume = this.Volume;
+
                 // Play the audio file
                 this.SoundOut.Play();
             }
@@ -151,42 +173,42 @@ namespace Rise_of_Music
                 // 10 iterations of the volume decreasing
                 for (int i = 9; i > 0; --i)
                 {
-                    // Wait inbetween each volume change to make it smooth
-                    Thread.Sleep(100);
-
                     switch (i)
                     {
                         case 9:
-                            this.SoundOut.Volume = .9f;
+                            this.SoundOut.Volume = this.Volume * .9f;
                             break;
                         case 8:
-                            this.SoundOut.Volume = .8f;
+                            this.SoundOut.Volume = this.Volume * .8f;
                             break;
                         case 7:
-                            this.SoundOut.Volume = .7f;
+                            this.SoundOut.Volume = this.Volume * .7f;
                             break;
                         case 6:
-                            this.SoundOut.Volume = .6f;
+                            this.SoundOut.Volume = this.Volume * .6f;
                             break;
                         case 5:
-                            this.SoundOut.Volume = .5f;
+                            this.SoundOut.Volume = this.Volume * .5f;
                             break;
                         case 4:
-                            this.SoundOut.Volume = .4f;
+                            this.SoundOut.Volume = this.Volume * .4f;
                             break;
                         case 3:
-                            this.SoundOut.Volume = .3f;
+                            this.SoundOut.Volume = this.Volume * .3f;
                             break;
                         case 2:
-                            this.SoundOut.Volume = .2f;
+                            this.SoundOut.Volume = this.Volume * .2f;
                             break;
                         case 1:
-                            this.SoundOut.Volume = .1f;
+                            this.SoundOut.Volume = this.Volume * .1f;
                             break;
                         case 0:
-                            this.SoundOut.Volume = .0f;
+                            this.SoundOut.Volume = this.Volume * .0f;
                             break;
                     }
+
+                    // Wait inbetween each volume change to make it smooth
+                    Thread.Sleep(100);
                 }
 
                 // Stop the song (this will start a new song as well)
