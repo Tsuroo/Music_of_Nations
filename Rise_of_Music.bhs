@@ -7,11 +7,9 @@ scenario
     // Constants
     labels
     {
-        UPDATE_TIME_SEC_DELTA = 20, // The number of seconds between each update
-        TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD = 120, // The number of seconds to wait to see if fighting has stopped in order to switch to MUSIC_MOOD_ECONOMIC
-        UNITS_LOST_DELTA_THRESHOLD = 5, // The number of units to lose before the music will change
-        UNITS_KILLED_DELTA_THRESHOLD = 5, // The number of units to kill before the music will change
-        BUILDINGS_DELTA_THRESHOLD = 3, // The number of buildings to lose before the music will change
+        UPDATE_TIME_SEC_DELTA = 15, // The number of seconds between each update
+        TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD = 60, // The number of seconds to wait to see if fighting has stopped in order to switch to MUSIC_MOOD_ECONOMIC
+        UNIT_DELTA_THRESHOLD = 2, // The number of units to lose or kill before the music will change
         MUSIC_MOOD_ECONOMIC = "economic", // The economic music mood
         MUSIC_MOOD_BATTLE_VICTORY = "battle_victory", // The battle_victory music mood
         MUSIC_MOOD_BATTLE_DEFEAT = "battle_defeat", // The battle_defeat music mood
@@ -32,9 +30,6 @@ scenario
 
     // The total number of units the player has lost
     static int unitsLostCount = num_units_lost(playerNumber);
-
-    // The number of buildings the player has
-    static int buildingsCount = num_buildings(playerNumber);
     
     // The current age the player is in
     static int currentAge = age(playerNumber);
@@ -62,54 +57,38 @@ scenario
         // Get the new values
         int newUnitsKilledCount = num_units_killed(playerNumber);
         int newUnitsLostCount = num_units_lost(playerNumber);
-        int newBuildingsCount = num_buildings(playerNumber);
         
         // Get the deltas between old a new values
         int unitsKilledCountDelta = newUnitsKilledCount - unitsKilledCount;
         int unitsLostCountDelta = newUnitsLostCount - unitsLostCount;
-        int buildingsCountDelta = newBuildingsCount - buildingsCount;
         
-        // If the player killed units AND they have killed more units than they lost
-        if (unitsKilledCountDelta > UNITS_KILLED_DELTA_THRESHOLD && unitsKilledCountDelta > unitsLostCountDelta)
+        // If the player's units killed delta plus units lost delta is greather than the threshold
+        if ((unitsKilledCountDelta + unitsLostCountDelta) > UNIT_DELTA_THRESHOLD)
         {
-            // If the current music mood is not MUSIC_MOOD_BATTLE_VICTORY
-            if (currentMusicMood != MUSIC_MOOD_BATTLE_VICTORY)
+            // If the player has killed more than they lost
+            if (unitsKilledCountDelta >= unitsLostCountDelta)
             {
-                // Set the current music mood
-                currentMusicMood = MUSIC_MOOD_BATTLE_VICTORY;
+                // If the current music mood is not MUSIC_MOOD_BATTLE_VICTORY
+                if (currentMusicMood != MUSIC_MOOD_BATTLE_VICTORY)
+                {
+                    // Set the current music mood
+                    currentMusicMood = MUSIC_MOOD_BATTLE_VICTORY;
             
-                // Write the music mood to a file
-                writeMusicMoodToFile(MUSIC_MOOD_BATTLE_VICTORY);
+                    // Write the music mood to a file
+                    writeMusicMoodToFile(MUSIC_MOOD_BATTLE_VICTORY);
+                }
             }
-            
-            // Set now as the time since last battle
-            timeSecSinceLastbattle = currentTimeSec;
-        }
-        else if (unitsLostCountDelta > UNITS_LOST_DELTA_THRESHOLD && unitsLostCountDelta > unitsKilledCountDelta) // If the player lost units AND they lost more units than they killed
-        {
-            // If the current music mood is not MUSIC_MOOD_BATTLE_DEFEAT
-            if (currentMusicMood != MUSIC_MOOD_BATTLE_DEFEAT)
+            else // Else, the player lost more than they killed
             {
-                // Set the current music mood
-                currentMusicMood = MUSIC_MOOD_BATTLE_DEFEAT;
+                // If the current music mood is not MUSIC_MOOD_BATTLE_DEFEAT
+                if (currentMusicMood != MUSIC_MOOD_BATTLE_DEFEAT)
+                {
+                    // Set the current music mood
+                    currentMusicMood = MUSIC_MOOD_BATTLE_DEFEAT;
                 
-                // Write the music mood to a file
-                writeMusicMoodToFile(MUSIC_MOOD_BATTLE_DEFEAT);
-            }
-            
-            // Set now as the time since last battle
-            timeSecSinceLastbattle = currentTimeSec;
-        }
-        else if (buildingsCountDelta < 0 && -buildingsCountDelta > BUILDINGS_DELTA_THRESHOLD)  // If the player hasn't killed or lost any units, they may still have lost some buildings
-        {
-            // If the current music mood is not MUSIC_MOOD_BATTLE_DEFEAT
-            if (currentMusicMood != MUSIC_MOOD_BATTLE_DEFEAT)
-            {
-                // Set the current music mood
-                currentMusicMood = MUSIC_MOOD_BATTLE_DEFEAT;
-                
-                // Write the music mood to a file
-                writeMusicMoodToFile(MUSIC_MOOD_BATTLE_DEFEAT);
+                    // Write the music mood to a file
+                    writeMusicMoodToFile(MUSIC_MOOD_BATTLE_DEFEAT);
+                }
             }
             
             // Set now as the time since last battle
@@ -135,7 +114,6 @@ scenario
         // Update our values
         unitsKilledCount = newUnitsKilledCount;
         unitsLostCount = newUnitsLostCount;
-        buildingsCount = newBuildingsCount;
         lastUpdateTimeSec = currentTimeSec;
     }
     
