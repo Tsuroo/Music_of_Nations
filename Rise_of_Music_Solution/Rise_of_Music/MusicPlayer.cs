@@ -31,7 +31,16 @@ namespace Rise_of_Music
                 if (value == "age_up")
                 {
                     // Don't change the value, but fade out the current song and fade in a new one
-                    this.FadeOutIn();
+                    this.FadeOut();
+                }
+                // Else, if the mood is "battle_*" AND the current song's mood is NOT "battle_*" and we are currently in "economic"
+                else if (value.StartsWith("battle") && !this.CurrentSongMoodIsBattle && this.Mood == "economic")
+                {
+                    // Set the mood
+                    this._Mood = value;
+
+                    // Fade out of this song and into another with the battle theme
+                    this.FadeOut();
                 }
                 else // Else, set the mood
                 {
@@ -40,6 +49,7 @@ namespace Rise_of_Music
             }
         }
         private String _Mood = "economic";
+        private bool CurrentSongMoodIsBattle = false;
 
         /// <summary>
         /// Gets or sets the current volume of the music player.
@@ -59,6 +69,11 @@ namespace Rise_of_Music
             }
         }
         private float _Volume = 0f;
+
+        /// <summary>
+        /// Flag for whether or not to fade in the next song.
+        /// </summary>
+        private bool ShouldFadeInNextSong { get; set; }
 
         /// <summary>
         /// The device to send audio to.
@@ -149,24 +164,93 @@ namespace Rise_of_Music
             // Get the audio file path to play
             String audioFilePath = this.GetUnplayedFileForCurrentMood();
 
+            // If the current mood is battle_victory or battle_defeat
+            if (this.Mood.StartsWith("battle"))
+            {
+                this.CurrentSongMoodIsBattle = true;
+            }
+            else
+            {
+                this.CurrentSongMoodIsBattle = false;
+            }
+
             // If the audio file path is not null, then play the file
             if (audioFilePath != null)
             {
                 // Initialize the SoundOut with an audio file
                 this.SoundOut.Initialize(CSCore.Codecs.CodecFactory.Instance.GetCodec(audioFilePath));
 
-                // Set the volume
-                this.SoundOut.Volume = this.Volume;
+                // If we're not fading in the next song
+                if (!this.ShouldFadeInNextSong)
+                {
+                    // Set the volume
+                    this.SoundOut.Volume = this.Volume;
 
-                // Play the audio file
-                this.SoundOut.Play();
+                    // Play the audio file
+                    this.SoundOut.Play();
+                }
+                else // Else, we are going to fade in the next song
+                {
+                    // Set the fade in flag for the next song
+                    this.ShouldFadeInNextSong = false;
+
+                    // Set the volume to zero
+                    this.SoundOut.Volume = 0;
+
+                    // Play the audio file
+                    this.SoundOut.Play();
+
+                    new Thread(() =>
+                    {
+                        // 10 iterations of the volume increasing
+                        for (int i = 0; i < 9; ++i)
+                        {
+                            switch (i)
+                            {
+                                case 0:
+                                    this.SoundOut.Volume = this.Volume * .1f;
+                                    break;
+                                case 1:
+                                    this.SoundOut.Volume = this.Volume * .2f;
+                                    break;
+                                case 2:
+                                    this.SoundOut.Volume = this.Volume * .3f;
+                                    break;
+                                case 3:
+                                    this.SoundOut.Volume = this.Volume * .4f;
+                                    break;
+                                case 4:
+                                    this.SoundOut.Volume = this.Volume * .5f;
+                                    break;
+                                case 5:
+                                    this.SoundOut.Volume = this.Volume * .6f;
+                                    break;
+                                case 6:
+                                    this.SoundOut.Volume = this.Volume * .7f;
+                                    break;
+                                case 7:
+                                    this.SoundOut.Volume = this.Volume * .8f;
+                                    break;
+                                case 8:
+                                    this.SoundOut.Volume = this.Volume * .9f;
+                                    break;
+                                case 9:
+                                    this.SoundOut.Volume = this.Volume;
+                                    break;
+                            }
+
+                            // Wait inbetween each volume change to make it smooth
+                            Thread.Sleep(125);
+                        }
+                    }).Start();
+                }
             }
         }
 
         /// <summary>
         /// Fades out the current audio file and fades in a new one
         /// </summary>
-        private void FadeOutIn()
+        private void FadeOut()
         {
             new Thread(() =>
             {
@@ -208,8 +292,11 @@ namespace Rise_of_Music
                     }
 
                     // Wait inbetween each volume change to make it smooth
-                    Thread.Sleep(100);
+                    Thread.Sleep(125);
                 }
+
+                // Set the fade in flag for the next song
+                this.ShouldFadeInNextSong = true;
 
                 // Stop the song (this will start a new song as well)
                 this.SoundOut.Stop();
