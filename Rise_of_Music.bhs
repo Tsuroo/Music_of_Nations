@@ -9,8 +9,8 @@ scenario
     {
         UPDATE_TIME_SEC_DELTA = 20, // The number of seconds between each update
         TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD = 120, // The number of seconds to wait to see if fighting has stopped in order to switch to MUSIC_MOOD_ECONOMIC
-        UNITS_LOST_DELTA_THRESHOLD = 10, // The number of units to lose before the music will change
-        UNITS_KILLED_DELTA_THRESHOLD = 10, // The number of units to kill before the music will change
+        UNITS_LOST_DELTA_THRESHOLD = 5, // The number of units to lose before the music will change
+        UNITS_KILLED_DELTA_THRESHOLD = 5, // The number of units to kill before the music will change
         BUILDINGS_DELTA_THRESHOLD = 3, // The number of buildings to lose before the music will change
         MUSIC_MOOD_ECONOMIC = "economic", // The economic music mood
         MUSIC_MOOD_BATTLE_VICTORY = "battle_victory", // The battle_victory music mood
