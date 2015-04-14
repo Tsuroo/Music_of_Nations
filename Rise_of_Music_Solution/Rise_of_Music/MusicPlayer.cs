@@ -42,6 +42,28 @@ namespace Rise_of_Music
                     // Fade out of this song and into another with the battle theme
                     this.FadeOut();
                 }
+                // Else, if the mood is "win" or "lose", then stop the music and play only the win or lose track
+                else if (value == "win" || value == "lose")
+                {
+                    // Set the mood
+                    this._Mood = value;
+
+                    // Stop the current track immediately and start the lose music
+                    this.SoundOut.Stop();
+
+                    // Play a song
+                    this.SoundOut.Play();
+                }
+                // Else, if the mood is "pause", then pause the current song, but do not change the mood
+                else if (value == "pause")
+                {
+                    this.SoundOut.Pause();
+                }
+                // Else, if the mood is "unpause", then resume playback of paused audio, but do not change the mood
+                else if (value == "unpause")
+                {
+                    this.SoundOut.Play();
+                }
                 else // Else, set the mood
                 {
                     this._Mood = value;
@@ -382,9 +404,14 @@ namespace Rise_of_Music
         /// <param name="e"></param>
         private void AudioStopped(object o, EventArgs e)
         {
-            new Thread(() => {
-                this.Play();
-            }).Start();
+            // If we weren't playing the win or lose music, then start a new song
+            if (this.Mood == "win" && this.Mood == "lose")
+            {
+                new Thread(() =>
+                {
+                    this.Play();
+                }).Start();
+            }
         }
 
         /// <summary>

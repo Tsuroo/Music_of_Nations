@@ -15,7 +15,9 @@ scenario
         MUSIC_MOOD_BATTLE_DEFEAT = "battle_defeat", // The battle_defeat music mood
         MUSIC_MOOD_WIN = "win", // The win music mood
         MUSIC_MOOD_LOSE = "lose", // The lose music mood
-        MUSIC_MOOD_AGE_UP = "age_up" // The age up music mood (this keeps the current mood, but fades out the current song and starts another)
+        MUSIC_MOOD_AGE_UP = "age_up", // The age up music mood (this keeps the current mood, but fades out the current song and starts another)
+        MUSIC_MOOD_PAUSE = "pause", // The paused music mood (stops the current track)
+        MUSIC_MOOD_UNPAUSE = "unpause" // The unpaused music mood (restarts the current track from the beginning)
     }
 
     // ========================= Initial values =========================
@@ -39,6 +41,9 @@ scenario
     
     // Time since last battle
     static int timeSecSinceLastbattle = 0;
+    
+    // Whether or not the game is paused
+    static int gamePaused = 0;
 
     // This functions runs only one time at the beginning of the game
     run_once
@@ -63,7 +68,7 @@ scenario
         int unitsLostCountDelta = newUnitsLostCount - unitsLostCount;
         
         // If the player's units killed delta plus units lost delta is greather than the threshold
-        if ((unitsKilledCountDelta + unitsLostCountDelta) > UNIT_DELTA_THRESHOLD)
+        if ((unitsKilledCountDelta + unitsLostCountDelta) >= UNIT_DELTA_THRESHOLD)
         {
             // If the player has killed more than they lost
             if (unitsKilledCountDelta >= unitsLostCountDelta)
@@ -130,7 +135,29 @@ scenario
         currentAge = age;
     }
     
-    // TODO: Check to see if the game is over
+    //  Check to see if the player has been defeated
+    trigger(is_defeated(playerNumber))
+    {
+        writeMusicMoodToFile(MUSIC_MOOD_LOSE);
+    }
+    
+    // If the game is paused, but it wasn't paused last update
+    if (is_paused() && !gamePaused)
+    {
+        // Write this to file
+        writeMusicMoodToFile(MUSIC_MOOD_PAUSE);
+            
+        // The game is paused
+        gamePaused = 1;
+    }
+    else if (!is_paused() && gamePaused) // Else, if the game is no longer paused, but it was on the last update
+    {
+        // Write this to file
+        writeMusicMoodToFile(MUSIC_MOOD_UNPAUSE);
+        
+        // The game is not paused
+        gamePaused = 0;
+    }
 }
 
 // Writes music mood information to a file
@@ -173,6 +200,18 @@ int scenario writeMusicMoodToFile(string musicMood)
     {
         open_file("Rise_of_Music.xml");
         file_write_text("MUSIC_MOOD", "age_up");
+        close_file();
+    }
+    else if (musicMood == "pause")
+    {
+        open_file("Rise_of_Music.xml");
+        file_write_text("MUSIC_MOOD", "pause");
+        close_file();
+    }
+    else if (musicMood == "unpause")
+    {
+        open_file("Rise_of_Music.xml");
+        file_write_text("MUSIC_MOOD", "unpause");
         close_file();
     }
     else
