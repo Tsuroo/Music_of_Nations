@@ -64,7 +64,16 @@ namespace Rise_of_Music
                     {
                         // Open the XML document
                         XmlDocument xmlDocument = new XmlDocument();
-                        xmlDocument.Load(riseOfMusicXmlFilePath);
+
+                        try
+                        {
+                            xmlDocument.Load(riseOfMusicXmlFilePath);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Failed to read Rise_of_Music.xml; trying again in one second.");
+                            continue;
+                        }
 
                         // Find the MUSIC_MOOD node
                         XmlNode musicMoodNode = xmlDocument.SelectSingleNode("/ROOT/MUSIC_MOOD");
