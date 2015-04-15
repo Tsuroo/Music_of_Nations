@@ -48,11 +48,9 @@ namespace Rise_of_Music
                     // Set the mood
                     this._Mood = value;
 
-                    // Stop the current track immediately and start the lose music
+                    // Stop the current track immediately and start the win or lose music
                     this.SoundOut.Stop();
-
-                    // Play a song
-                    this.SoundOut.Play();
+                    this.Play();
                 }
                 // Else, if the mood is "pause", then pause the current song, but do not change the mood
                 else if (value == "pause")
@@ -404,8 +402,12 @@ namespace Rise_of_Music
         /// <param name="e"></param>
         private void AudioStopped(object o, EventArgs e)
         {
-            // If we weren't playing the win or lose music, then start a new song
-            if (this.Mood == "win" && this.Mood == "lose")
+            // If we were playing win or lose music
+            if (this.Mood == "win" || this.Mood == "lose")
+            {
+                // Do nothing
+            }
+            else
             {
                 new Thread(() =>
                 {
