@@ -15,6 +15,8 @@ namespace Rise_of_Music
 
         private static String riseOfMusicXmlFilePath = null;
 
+        private static String riseOfMusicHeartbeatXmlFilePath = null;
+
         private static String currentUserDatFilePath = null;
 
         private static DateTime currentUserDatFileLastWriteTime = DateTime.Now;
@@ -111,6 +113,22 @@ namespace Rise_of_Music
                             currentUserDatFileLastWriteTime = File.GetLastWriteTime(currentUserDatFilePath);
                         }
 
+                        // If the heartbeat file exists
+                        if (File.Exists(riseOfMusicHeartbeatXmlFilePath))
+                        {
+                            // Check to see if the last time it was written was over two seconds ago && if rise2.ini was written to within this second
+                            if (File.GetLastWriteTime(riseOfMusicHeartbeatXmlFilePath) <= DateTime.Now.AddSeconds(-2) &&
+                                !(File.GetLastWriteTime(@"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\rise2.ini") <= DateTime.Now.AddSeconds(-1)))
+                            {
+                                // Remove the heartbeat file
+                                File.Delete(riseOfMusicHeartbeatXmlFilePath);
+
+                                // Set the mood to "win", so that we at least have some ending music...
+                                // TODO: Find a better way to tell if the player has won or lost at the end of a game.
+                                musicPlayer.Mood = "win";
+                            }
+                        }
+
                         // Wait 1 second before checking again
                         Thread.Sleep(1000);
                     }
@@ -189,6 +207,10 @@ namespace Rise_of_Music
             riseOfMusicXmlFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music.xml";
             Console.WriteLine("Setting Rise_of_Music.xml file path to: " + riseOfMusicXmlFilePath);
 
+            // Get the Rise_of_Music_Heartbeat.xml path
+            riseOfMusicHeartbeatXmlFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music_Heartbeat.xml";
+            Console.WriteLine("Setting Rise_of_Music_Heartbeat.xml file path to : " + riseOfMusicHeartbeatXmlFilePath);
+
             // Get the current user in Rise of Nations
             String currentUser = GetCurrentUsername();
             Console.WriteLine("Current user in Rise of Nations: " + currentUser);
@@ -228,7 +250,6 @@ namespace Rise_of_Music
             Console.WriteLine("Directory exists (" + winDirPath + "): " + winDirExists);
 
             // If a Rise_of_Music.xml file exists
-            
             if (File.Exists(riseOfMusicXmlFilePath))
             {
                 try
@@ -241,6 +262,23 @@ namespace Rise_of_Music
                 catch (Exception e)
                 {
                     Console.WriteLine("Unable to delete current \"Rise_of_Music.xml\" file.  Please delete file and restart.");
+                    return false;
+                }
+            }
+
+            // If a Rise_of_Music_Heartbeat.xml file exists
+            if (File.Exists(riseOfMusicHeartbeatXmlFilePath))
+            {
+                try
+                {
+                    // Delete it
+                    File.Delete(riseOfMusicHeartbeatXmlFilePath);
+
+                    Console.WriteLine("Removed current \"Rise_of_Music_Heartbeat.xml\" file successfully.");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unable to delete current \"Rise_of_Music_Heartbeat.xml\" file.  Please delete file and restart.");
                     return false;
                 }
             }

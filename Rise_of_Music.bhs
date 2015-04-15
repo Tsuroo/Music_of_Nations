@@ -1,6 +1,7 @@
 int scenario fifo(int newValue, ref int value0, ref int value1, ref int value2, ref int value3, ref int value4, ref int value5, ref int value6);
 int scenario printValues(int unitsKilledCount, int unitsLostCount, int buildingCount);
 int scenario writeMusicMoodToFile(string musicMood);
+int scenario writeToHeartbeatFile();
 
 scenario
 {
@@ -8,6 +9,7 @@ scenario
     labels
     {
         UPDATE_TIME_SEC_DELTA = 15, // The number of seconds between each update
+        HEARTBEAT_TIME_DELTA = 500, // Write the heartbeat file every time we hit this delta in milliseconds
         TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD = 60, // The number of seconds to wait to see if fighting has stopped in order to switch to MUSIC_MOOD_ECONOMIC
         UNIT_DELTA_THRESHOLD = 2, // The number of units to lose or kill before the music will change
         MUSIC_MOOD_ECONOMIC = "economic", // The economic music mood
@@ -48,11 +50,18 @@ scenario
     // This functions runs only one time at the beginning of the game
     run_once
     {
+        // Set the heartbeat timer
+        set_timer("heartbeatTimer", 1);
+        
+        // Write the initial heartbeat
+        writeToHeartbeatFile();
+    
         // Start the game with the ECONOMIC music mood
         writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC);
     }
 
     // ========================= Main script body =========================
+    
     // Get the current time
     int currentTimeSec = time_sec();
 
@@ -153,12 +162,28 @@ scenario
         gamePaused = 0;
     }
     
-    // Fires when this player has been defeated
-    trigger(is_defeated(playerNumber))
+    // Fires when the hearbeat timer expires
+    trigger heartbeatTrigger(timer_expired("heartbeatTimer"))
     {
-        // Set the music mood to "lose" for this player
-        writeMusicMoodToFile(MUSIC_MOOD_LOSE);
+        // Write to the heartbeat file
+        writeToHeartbeatFile();
+    
+        // Reset the timer and the trigger
+        set_timer("heartbeatTimer", 1);
+        enable_trigger("heartbeatTrigger");
     }
+}
+
+// Writes to the heartbeat file (Rise_of_Music_heartbeat.xml)
+int scenario writeToHeartbeatFile()
+{
+    // Write to the file
+    open_file("Rise_of_Music_Heartbeat.xml");
+    file_write_attrib("HEARTBEAT", "heartbeat");
+    close_file();
+    
+    // Return success
+    return 1;
 }
 
 // Writes music mood information to a file
