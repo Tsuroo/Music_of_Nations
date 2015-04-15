@@ -135,12 +135,6 @@ scenario
         currentAge = age;
     }
     
-    //  Check to see if the player has been defeated
-    trigger(is_defeated(playerNumber))
-    {
-        writeMusicMoodToFile(MUSIC_MOOD_LOSE);
-    }
-    
     // If the game is paused, but it wasn't paused last update
     if (is_paused() && !gamePaused)
     {
@@ -157,6 +151,13 @@ scenario
         
         // The game is not paused
         gamePaused = 0;
+    }
+    
+    // Fires when this player has been defeated
+    trigger(is_defeated(playerNumber))
+    {
+        // Set the music mood to "lose" for this player
+        writeMusicMoodToFile(MUSIC_MOOD_LOSE);
     }
 }
 
