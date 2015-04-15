@@ -48,8 +48,10 @@ namespace Rise_of_Music
                     // Set the mood
                     this._Mood = value;
 
-                    // Stop the current track immediately and start the win or lose music
+                    // Stop the current track immediately
                     this.SoundOut.Stop();
+
+                    // Start the win or lose music immediately
                     this.Play();
                 }
                 // Else, if the mood is "pause", then pause the current song, but do not change the mood
@@ -405,7 +407,8 @@ namespace Rise_of_Music
             // If we were playing win or lose music
             if (this.Mood == "win" || this.Mood == "lose")
             {
-                // Do nothing
+                // Mark the music player as having stopped so that it is ready to be used for another game
+                this.HasStartedPlaying = false;
             }
             else
             {

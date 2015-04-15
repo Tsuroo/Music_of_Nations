@@ -59,58 +59,65 @@ namespace Rise_of_Music
             {
                 while (true)
                 {
-                    // If a Rise_of_Music.xml file exists
-                    if (File.Exists(riseOfMusicXmlFilePath))
+                    try
                     {
-                        // Open the XML document
-                        XmlDocument xmlDocument = new XmlDocument();
-
-                        try
+                        // If a Rise_of_Music.xml file exists
+                        if (File.Exists(riseOfMusicXmlFilePath))
                         {
-                            xmlDocument.Load(riseOfMusicXmlFilePath);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("Failed to read Rise_of_Music.xml; trying again in one second.");
-                            continue;
+                            // Open the XML document
+                            XmlDocument xmlDocument = new XmlDocument();
+
+                            try
+                            {
+                                xmlDocument.Load(riseOfMusicXmlFilePath);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Failed to read Rise_of_Music.xml; trying again in one second.");
+                                continue;
+                            }
+
+                            // Find the MUSIC_MOOD node
+                            XmlNode musicMoodNode = xmlDocument.SelectSingleNode("/ROOT/MUSIC_MOOD");
+
+                            // Set the current music mood to the value in the XML file
+                            musicPlayer.Mood = musicMoodNode.InnerText;
+
+                            // If we haven't started the music player yet - start it
+                            if (!musicPlayer.HasStartedPlaying)
+                            {
+                                musicPlayer.Play();
+                            }
+
+                            // Remove the Rise_of_Music.xml
+                            try
+                            {
+                                // Delete it
+                                File.Delete(riseOfMusicXmlFilePath);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Unable to delete current \"Rise_of_Music.xml\" file.  Please delete file and restart.");
+                            }
                         }
 
-                        // Find the MUSIC_MOOD node
-                        XmlNode musicMoodNode = xmlDocument.SelectSingleNode("/ROOT/MUSIC_MOOD");
-
-                        // Set the current music mood to the value in the XML file
-                        musicPlayer.Mood = musicMoodNode.InnerText;
-
-                        // If we haven't started the music player yet - start it
-                        if (!musicPlayer.HasStartedPlaying)
+                        // Check to see if the user's DAT has been modified (possibly with a change to music volume).
+                        if (File.GetLastWriteTime(currentUserDatFilePath) > currentUserDatFileLastWriteTime)
                         {
-                            musicPlayer.Play();
+                            // The file has been written to; re-check the music volume node and set it in the music player
+                            musicPlayer.Volume = GetCurrentUserVolumeSetting();
+
+                            // Reset the last write time
+                            currentUserDatFileLastWriteTime = File.GetLastWriteTime(currentUserDatFilePath);
                         }
 
-                        // Remove the Rise_of_Music.xml
-                        try
-                        {
-                            // Delete it
-                            File.Delete(riseOfMusicXmlFilePath);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("Unable to delete current \"Rise_of_Music.xml\" file.  Please delete file and restart.");
-                        }
+                        // Wait 1 second before checking again
+                        Thread.Sleep(1000);
                     }
-
-                    // Check to see if the user's DAT has been modified (possibly with a change to music volume).
-                    if (File.GetLastWriteTime(currentUserDatFilePath) > currentUserDatFileLastWriteTime)
+                    catch (Exception e)
                     {
-                        // The file has been written to; re-check the music volume node and set it in the music player
-                        musicPlayer.Volume = GetCurrentUserVolumeSetting();
-
-                        // Reset the last write time
-                        currentUserDatFileLastWriteTime = File.GetLastWriteTime(currentUserDatFilePath);
+                        Console.WriteLine("Exception: " + e.Message);
                     }
-
-                    // Wait 1 second before checking again
-                    Thread.Sleep(1000);
                 }
             }).Start();
 
