@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rise_of_Music", "Rise_of_Music\Rise_of_Music.csproj", "{B398F78F-0606-43A5-AAAE-26EF3C22702F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Install", "Install\Install.csproj", "{C996480A-107F-4E22-A315-960AD8D649EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{B398F78F-0606-43A5-AAAE-26EF3C22702F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B398F78F-0606-43A5-AAAE-26EF3C22702F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B398F78F-0606-43A5-AAAE-26EF3C22702F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C996480A-107F-4E22-A315-960AD8D649EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C996480A-107F-4E22-A315-960AD8D649EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C996480A-107F-4E22-A315-960AD8D649EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C996480A-107F-4E22-A315-960AD8D649EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
