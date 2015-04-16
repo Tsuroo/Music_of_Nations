@@ -21,12 +21,16 @@ namespace Rise_of_Music
 
         private static DateTime currentUserDatFileLastWriteTime = DateTime.Now;
 
+        private static bool menuIsShowing = false;
+
         /// <summary>
         /// The entry point to Rise of Music.
         /// </summary>
         /// <param name="args">Not currently used.</param>
         public static void Main(string[] args)
         {
+            InterceptKeys.OnMenuButtonClicked += InterceptKeys_OnMenuButtonClicked;
+
             // Initializes the application and returns success or failure
             bool initSuccess = Init();
 
@@ -117,15 +121,18 @@ namespace Rise_of_Music
                         if (File.Exists(riseOfMusicHeartbeatXmlFilePath))
                         {
                             // Check to see if the last time it was written was over two seconds ago && if rise2.ini was written to within this second
-                            if (File.GetLastWriteTime(riseOfMusicHeartbeatXmlFilePath) <= DateTime.Now.AddSeconds(-2) &&
-                                !(File.GetLastWriteTime(@"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\rise2.ini") <= DateTime.Now.AddSeconds(-1)))
+                            if (File.GetLastWriteTime(riseOfMusicHeartbeatXmlFilePath) <= DateTime.Now.AddSeconds(-2))
                             {
-                                // Remove the heartbeat file
-                                File.Delete(riseOfMusicHeartbeatXmlFilePath);
+                                // If the user didn't click Escape or F10 to show the menu
+                                if (!menuIsShowing)
+                                {
+                                    // Remove the heartbeat file
+                                    File.Delete(riseOfMusicHeartbeatXmlFilePath);
 
-                                // Set the mood to "win", so that we at least have some ending music...
-                                // TODO: Find a better way to tell if the player has won or lost at the end of a game.
-                                musicPlayer.Mood = "win";
+                                    // Set the mood to "win", so that we at least have some ending music...
+                                    // TODO: Find a better way to tell if the player has won or lost at the end of a game.
+                                    musicPlayer.Mood = "win";
+                                }
                             }
                         }
 
@@ -141,13 +148,27 @@ namespace Rise_of_Music
 
             // Allow the user to exit once they have read any messages
             Console.WriteLine("NOTE: Press any key (at any time) or close the window to exit.");
-            Console.ReadKey();
+            //Console.ReadKey();
+
+            System.Windows.Forms.Application.Run();
 
             // Dispose of the MusicPlayer object
             musicPlayer.Dispose();
 
             // Exit with success status code
             Environment.Exit(0);
+        }
+
+        private static void InterceptKeys_OnMenuButtonClicked(object sender, EventArgs e)
+        {
+            if (musicPlayer.HasStartedPlaying)
+            {
+                // Swap the values for menuIsShowing
+                menuIsShowing = !menuIsShowing;
+
+                // Write to the console that this occurred
+                Console.WriteLine("Game is paused: " + menuIsShowing);
+            }
         }
 
         private static float GetCurrentUserVolumeSetting()
