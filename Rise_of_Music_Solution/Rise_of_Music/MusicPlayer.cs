@@ -45,14 +45,19 @@ namespace Rise_of_Music
                 // Else, if the mood is "win" or "lose", then stop the music and play only the win or lose track
                 else if (value == "win" || value == "lose")
                 {
-                    // Set the mood
-                    this._Mood = value;
+                    // If the mood is NOT already "win" or "lose"
+                    if (this._Mood != "win" && this._Mood != "lose")
+                    {
+                        // Set the mood
+                        this._Mood = value;
 
-                    // Stop the current track immediately
-                    this.SoundOut.Stop();
+                        // Stop the current track immediately
+                        this.SoundOut.Stop();
 
-                    // Start the win or lose music immediately
-                    this.Play();
+                        // Start the win or lose music immediately
+                        this.Play();
+                    }
+                    
                 }
                 // Else, if the mood is "pause", then pause the current song, but do not change the mood
                 else if (value == "pause")

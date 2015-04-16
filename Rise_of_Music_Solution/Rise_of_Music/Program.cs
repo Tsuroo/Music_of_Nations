@@ -32,6 +32,7 @@ namespace Rise_of_Music
             if (!initSuccess)
             {
                 Console.WriteLine("Failed to initialize");
+                Console.WriteLine();
 
                 // Allow the user to exit once they have read any messages
                 Console.Write("Press any key to exit...");
@@ -43,16 +44,13 @@ namespace Rise_of_Music
             else // Else, the app successfully initialized
             {
                 Console.WriteLine("Rise of Music initialized successfully");
+                Console.WriteLine();
             }
-
-            // Create the MusicPlayer object
-            musicPlayer = new MusicPlayer();
-
-            // Set the current date modified for the current user DAT file
-            currentUserDatFileLastWriteTime = File.GetLastWriteTime(currentUserDatFilePath);
 
             // Set the volume for the MusicPlayer
             musicPlayer.Volume = GetCurrentUserVolumeSetting();
+
+            Console.WriteLine("Waiting for music mood info file...");
 
             // Begin looking for a Rise_of_Music.xml file to read
             new Thread(() =>
@@ -120,10 +118,9 @@ namespace Rise_of_Music
                     }
                 }
             }).Start();
-
-            // Allow the user to exit once they have read any messages
-            Console.WriteLine("NOTE: Press any key (at any time) or close the window to exit.");
-            Console.ReadKey();
+            
+            // Run this application.  The user will 'X' out when they are done.
+            System.Windows.Forms.Application.Run();
 
             // Dispose of the MusicPlayer object
             musicPlayer.Dispose();
@@ -183,7 +180,7 @@ namespace Rise_of_Music
             Console.WriteLine("          Rise of Music");
             Console.WriteLine("=================================");
 
-            Console.WriteLine("Initializing");
+            Console.WriteLine("Initializing...");
 
             // Get the Rise_of_Music.xml path
             riseOfMusicXmlFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music.xml";
@@ -206,6 +203,9 @@ namespace Rise_of_Music
             {
                 Console.WriteLine("Current user DAT file exists (" + datFilePath + "): False");
             }
+
+            InterceptKeys.OnTildePressedThreeTimesFast += InterceptKeys_OnTildePressedThreeTimesFast;
+            InterceptKeys.OnRightControlPressedThreeTimesFast += InterceptKeys_OnRightControlPressedThreeTimesFast;
 
             String battleDefeatDirPath = "sounds/tracks/battle_defeat/";
             String battleVictoryDirPath = "sounds/tracks/battle_victory/";
@@ -245,8 +245,26 @@ namespace Rise_of_Music
                 }
             }
 
+            // Set the current date modified for the current user DAT file
+            currentUserDatFileLastWriteTime = File.GetLastWriteTime(currentUserDatFilePath);
+
+            // Create the MusicPlayer object
+            musicPlayer = new MusicPlayer();
+
             // Returns true if all directories exist, false if even one does not exist
             return (battleDefeatDirExists && battleVictoryDirExists && economicDirExists && loseDirExists && winDirExists);
+        }
+
+        private static void InterceptKeys_OnTildePressedThreeTimesFast(object sender, EventArgs e)
+        {
+            // Set the music mood to win
+            musicPlayer.Mood = "win";
+        }
+
+        static void InterceptKeys_OnRightControlPressedThreeTimesFast(object sender, EventArgs e)
+        {
+            // Set the music mood to lose
+            musicPlayer.Mood = "lose";
         }
     }
 }
