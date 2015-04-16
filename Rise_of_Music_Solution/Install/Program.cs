@@ -113,10 +113,10 @@ namespace Install
                 CopyFile(riseOfNationsRoot + @"sounds\tracks\WingAndAPrayer.wav", riseOfMusicRoot + @"sounds\tracks\economic\WingAndAPrayer.wav");
 
                 // Copy lose music
-                CopyFile(riseOfNationsRoot + @"sounds\tracks\WingAndAPrayer.wav", riseOfMusicRoot + @"sounds\tracks\lose\Waterloo.wav");
+                CopyFile(riseOfNationsRoot + @"sounds\tracks\Waterloo.wav", riseOfMusicRoot + @"sounds\tracks\lose\Waterloo.wav");
 
                 // Copy win music
-                CopyFile(riseOfNationsRoot + @"sounds\tracks\WingAndAPrayer.wav", riseOfMusicRoot + @"sounds\tracks\win\ArcDeTriomphe.wav");
+                CopyFile(riseOfNationsRoot + @"sounds\tracks\ArcDeTriomphe.wav", riseOfMusicRoot + @"sounds\tracks\win\ArcDeTriomphe.wav");
 
                 return true;
             }
