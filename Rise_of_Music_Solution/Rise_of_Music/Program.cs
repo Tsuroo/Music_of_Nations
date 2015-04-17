@@ -176,9 +176,9 @@ namespace Rise_of_Music
         /// <returns>True if successfully initialized, false otherwise.</returns>
         private static bool Init()
         {
-            Console.WriteLine("=================================");
-            Console.WriteLine("          Rise of Music");
-            Console.WriteLine("=================================");
+            Console.WriteLine("============================================");
+            Console.WriteLine("          Rise of Music v. " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+            Console.WriteLine("============================================");
 
             Console.WriteLine("Initializing...");
 

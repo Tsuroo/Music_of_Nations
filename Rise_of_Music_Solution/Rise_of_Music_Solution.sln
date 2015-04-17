@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rise_of_Music", "Rise_of_Music\Rise_of_Music.csproj", "{B398F78F-0606-43A5-AAAE-26EF3C22702F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Install", "Install\Install.csproj", "{C996480A-107F-4E22-A315-960AD8D649EE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B398F78F-0606-43A5-AAAE-26EF3C22702F} = {B398F78F-0606-43A5-AAAE-26EF3C22702F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
