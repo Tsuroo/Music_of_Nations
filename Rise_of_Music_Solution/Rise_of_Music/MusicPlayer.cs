@@ -133,12 +133,87 @@ namespace Rise_of_Music
             // Set the event handler for when audio playback has stopped from the SoundOut
             this.SoundOut.Stopped += AudioStopped;
 
-            // Init the dictionary for each mood
-            this.InitAudioFilesForMood("battle_defeat");
-            this.InitAudioFilesForMood("battle_victory");
-            this.InitAudioFilesForMood("economic");
-            this.InitAudioFilesForMood("lose");
-            this.InitAudioFilesForMood("win");
+            // If the config states to use the original soundtrack
+            if (!Program.Config.UseCustomSoundtrack)
+            {
+                String riseOfNationsRootSoundsTracks = null;
+
+                // If we're running in a 64-bit operating system
+                if (Environment.Is64BitOperatingSystem)
+                {
+                    // Set the root path
+                    riseOfNationsRootSoundsTracks = @"C:\Program Files (x86)\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
+                }
+                else
+                {
+                    // Set the root path
+                    riseOfNationsRootSoundsTracks = @"C:\Program Files\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
+                }
+
+                // battle_defeat music
+                List<AudioFile> battleDefeatAudioFiles = new List<AudioFile>();
+                battleDefeatAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Allerton.wav"));
+                battleDefeatAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "BattleAtWitchCreek.wav"));
+                battleDefeatAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "DesertWind.wav"));
+                battleDefeatAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Misfire.wav"));
+                battleDefeatAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "MistAtDawn.wav"));
+                battleDefeatAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Osaka.wav"));
+                battleDefeatAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Tribes.wav"));
+                this.MoodToAudioFileDictionary.Add("battle_defeat", battleDefeatAudioFiles);
+
+                // battle_victory music
+                List<AudioFile> battleVictoryAudioFiles = new List<AudioFile>();
+                battleVictoryAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Attack.wav"));
+                battleVictoryAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Galleons.wav"));
+                battleVictoryAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "HighStrung.wav"));
+                battleVictoryAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Revolver.wav"));
+                battleVictoryAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "TheRussian.wav"));
+                battleVictoryAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "WilliamWallace.wav"));
+                this.MoodToAudioFileDictionary.Add("battle_victory", battleVictoryAudioFiles);
+
+                // economic music
+                List<AudioFile> economicAudioFiles = new List<AudioFile>();
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "AcrossTheBog.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Bengal.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Brazil.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "DarkForest.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Eire.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Gobi.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "HalfMoon.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Hearth.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Indochine.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Morocco.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "OverTheDam.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "PeacePipe.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Rockets.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "SacrificeToTheSun.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Santiago.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "SimpleSong.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "SriLanka.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "TheHague(ruffmix2).wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "ThunderBird.wav"));
+                economicAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "WingAndAPrayer.wav"));
+                this.MoodToAudioFileDictionary.Add("economic", economicAudioFiles);
+
+                // lose music
+                List<AudioFile> loseAudioFiles = new List<AudioFile>();
+                loseAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "Waterloo.wav"));
+                this.MoodToAudioFileDictionary.Add("lose", loseAudioFiles);
+
+                // win music
+                List<AudioFile> winAudioFiles = new List<AudioFile>();
+                winAudioFiles.Add(new AudioFile(riseOfNationsRootSoundsTracks + "ArcDeTriomphe.wav"));
+                this.MoodToAudioFileDictionary.Add("win", winAudioFiles);
+            }
+            else // Else, we're using the mood directories
+            {
+                // Init the dictionary for each mood
+                this.InitAudioFilesForMood("battle_defeat");
+                this.InitAudioFilesForMood("battle_victory");
+                this.InitAudioFilesForMood("economic");
+                this.InitAudioFilesForMood("lose");
+                this.InitAudioFilesForMood("win");
+            }
         }
 
         /// <summary>
@@ -147,17 +222,19 @@ namespace Rise_of_Music
         /// <param name="mood"></param>
         private void InitAudioFilesForMood(String mood)
         {
+            String appDataMusicMoodDir = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\" + mood;
+
             // Create the list of AudioFile objects
             List<AudioFile> audioFiles = new List<AudioFile>();
 
-            foreach (String filePath in Directory.GetFiles("sounds/tracks/" + mood))
+            foreach (String filePath in Directory.GetFiles(appDataMusicMoodDir))
             {
                 // Make sure we're only using WAV or MP3 files (ignoring case)
                 if (filePath.EndsWith("wav", true, System.Globalization.CultureInfo.CurrentCulture) ||
                     filePath.EndsWith("mp3", true, System.Globalization.CultureInfo.CurrentCulture))
                 {
                     // Create a new AudioFile
-                    AudioFile audioFile = new AudioFile(filePath, mood);
+                    AudioFile audioFile = new AudioFile(filePath);
 
                     // Add this file path to the list of AudioFile objects
                     audioFiles.Add(audioFile);

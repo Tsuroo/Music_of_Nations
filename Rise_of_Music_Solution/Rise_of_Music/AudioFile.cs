@@ -14,19 +14,13 @@ namespace Rise_of_Music
         public String Path { get; private set; }
 
         /// <summary>
-        /// Gets the audio file music mood.
-        /// </summary>
-        public String Mood { get; private set; }
-
-        /// <summary>
         /// Gets or sets the flag that states whether or not the audio file has been played.
         /// </summary>
         public bool HasBeenPlayed { get; set; }
 
-        public AudioFile(String path, String mood)
+        public AudioFile(String path)
         {
             this.Path = path;
-            this.Mood = mood;
             this.HasBeenPlayed = false;
         }
     }

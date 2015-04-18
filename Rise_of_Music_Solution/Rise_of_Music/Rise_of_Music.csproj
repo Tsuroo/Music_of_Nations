@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioFile.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="InterceptKeys.cs" />
     <Compile Include="MusicPlayer.cs" />
     <Compile Include="Program.cs" />

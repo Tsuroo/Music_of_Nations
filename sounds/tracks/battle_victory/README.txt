@@ -1,1 +1,0 @@
-Place MP3 or WAV files in this directory to have them played during "battle_victory" sections of the game.

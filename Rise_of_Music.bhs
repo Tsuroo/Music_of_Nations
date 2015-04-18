@@ -7,7 +7,7 @@ scenario
     // Constants
     labels
     {
-        UPDATE_TIME_SEC_DELTA = 15, // The number of seconds between each update
+        UPDATE_TIME_SEC_DELTA = 12, // The number of seconds between each update
         TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD = 60, // The number of seconds to wait to see if fighting has stopped in order to switch to MUSIC_MOOD_ECONOMIC
         UNIT_DELTA_THRESHOLD = 2, // The number of units to lose or kill before the music will change
         MUSIC_MOOD_ECONOMIC = "economic", // The economic music mood
@@ -25,16 +25,16 @@ scenario
     static int lastUpdateTimeSec = time_sec();
 
     // The player's number
-    static int playerNumber = get_console_player();
+    static int playerNumber = -1;//get_console_player(); // get_console_player() does not work in multiplayer for some sad reason.  :'(
 
     // The total number of enemy units the player has killed
-    static int unitsKilledCount = num_units_killed(playerNumber);
+    static int unitsKilledCount = 0;
 
     // The total number of units the player has lost
-    static int unitsLostCount = num_units_lost(playerNumber);
+    static int unitsLostCount = 0;
     
     // The current age the player is in
-    static int currentAge = age(playerNumber);
+    static int currentAge = 1;
     
     // The current music mood
     static string currentMusicMood = MUSIC_MOOD_ECONOMIC;
@@ -48,6 +48,16 @@ scenario
     // This functions runs only one time at the beginning of the game
     run_once
     {
+        // Get the playerNumber from the XML file written by Rise_of_Music.exe
+        open_file("Rise_of_Music/config.xml");
+        playerNumber = (int)file_read_text("PLAYER_NUMBER");
+        string color = file_read_text("PLAYER_COLOR");
+        string version = file_read_text("VERSION");
+        close_file();
+        
+        print_game_msg("Rise of Music v. " + version);
+        print_game_msg("Listening for music events from " + color + " player (ID=" + playerNumber + ")");
+    
         // Start the game with the ECONOMIC music mood
         writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC);
     }
@@ -55,7 +65,7 @@ scenario
     // ========================= Main script body =========================
     // Get the current time
     int currentTimeSec = time_sec();
-
+    
     // If the current time is greater than the last update time + the delta
     if (currentTimeSec > lastUpdateTimeSec + UPDATE_TIME_SEC_DELTA)
     {
@@ -169,49 +179,49 @@ int scenario writeMusicMoodToFile(string musicMood)
 
     if (musicMood == "economic")
     {
-        open_file("Rise_of_Music.xml");
+        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "economic");
         close_file();
     }
     else if (musicMood == "battle_victory")
     {
-        open_file("Rise_of_Music.xml");
+        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "battle_victory");
         close_file();
     }
     else if (musicMood == "battle_defeat")
     {
-        open_file("Rise_of_Music.xml");
+        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "battle_defeat");
         close_file();
     }
     else if (musicMood == "win")
     {
-        open_file("Rise_of_Music.xml");
+        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "win");
         close_file();
     }
     else if (musicMood == "lose")
     {
-        open_file("Rise_of_Music.xml");
+        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "lose");
         close_file();
     }
     else if (musicMood == "age_up")
     {
-        open_file("Rise_of_Music.xml");
+        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "age_up");
         close_file();
     }
     else if (musicMood == "pause")
     {
-        open_file("Rise_of_Music.xml");
+        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "pause");
         close_file();
     }
     else if (musicMood == "unpause")
     {
-        open_file("Rise_of_Music.xml");
+        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "unpause");
         close_file();
     }
