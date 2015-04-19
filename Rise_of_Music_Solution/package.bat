@@ -17,4 +17,5 @@ copy Rise_of_Music\bin\Release\Rise_of_Music.exe Rise_of_Music_target\scenario\S
 copy ..\LICENSE Rise_of_Music_target\scenario\Scripts\Rise_of_Music\LICENSE
 copy ..\README.md Rise_of_Music_target\scenario\Scripts\Rise_of_Music\README.md
 copy ..\Rise_of_Music.bhs Rise_of_Music_target\scenario\Scripts\Rise_of_Music\Rise_of_Music.bhs
+copy ..\Rise_of_Music.bhs Rise_of_Music_target\scenario\Scripts\Rise_of_Music\Rise_of_Music.bhs.bak
 copy ..\version.txt Rise_of_Music_target\scenario\Scripts\Rise_of_Music\version.txt
