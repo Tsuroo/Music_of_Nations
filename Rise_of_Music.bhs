@@ -21,35 +21,35 @@ scenario
 
     // ========================= Initial values =========================
 	
-	// Total number of units each player has killed
-	static int previousTotalUnitsKilled1 = 0;
-	static int previousTotalUnitsKilled2 = 0;
-	static int previousTotalUnitsKilled3 = 0;
-	static int previousTotalUnitsKilled4 = 0;
-	static int previousTotalUnitsKilled5 = 0;
-	static int previousTotalUnitsKilled6 = 0;
-	static int previousTotalUnitsKilled7 = 0;
-	static int previousTotalUnitsKilled8 = 0;
+	    // Total number of units each player has killed
+    	static int previousTotalUnitsKilled1 = 0;
+    	static int previousTotalUnitsKilled2 = 0;
+    	static int previousTotalUnitsKilled3 = 0;
+    	static int previousTotalUnitsKilled4 = 0;
+    	static int previousTotalUnitsKilled5 = 0;
+    	static int previousTotalUnitsKilled6 = 0;
+    	static int previousTotalUnitsKilled7 = 0;
+    	static int previousTotalUnitsKilled8 = 0;
 	
-	// Total number of units each player has lost
-	static int previousTotalUnitsLost1 = 0;
-	static int previousTotalUnitsLost2 = 0;
-	static int previousTotalUnitsLost3 = 0;
-	static int previousTotalUnitsLost4 = 0;
-	static int previousTotalUnitsLost5 = 0;
-	static int previousTotalUnitsLost6 = 0;
-	static int previousTotalUnitsLost7 = 0;
-	static int previousTotalUnitsLost8 = 0;
+	    // Total number of units each player has lost
+    	static int previousTotalUnitsLost1 = 0;
+    	static int previousTotalUnitsLost2 = 0;
+    	static int previousTotalUnitsLost3 = 0;
+    	static int previousTotalUnitsLost4 = 0;
+    	static int previousTotalUnitsLost5 = 0;
+    	static int previousTotalUnitsLost6 = 0;
+    	static int previousTotalUnitsLost7 = 0;
+    	static int previousTotalUnitsLost8 = 0;
 	
-	// Time of last battle for each player
-	static int timeSecOfLastbattle1 = 0;
-	static int timeSecOfLastbattle2 = 0;
-	static int timeSecOfLastbattle3 = 0;
-	static int timeSecOfLastbattle4 = 0;
-	static int timeSecOfLastbattle5 = 0;
-	static int timeSecOfLastbattle6 = 0;
-	static int timeSecOfLastbattle7 = 0;
-	static int timeSecOfLastbattle8 = 0;
+	    // Time of last battle for each player
+    	static int timeSecOfLastbattle1 = 0;
+    	static int timeSecOfLastbattle2 = 0;
+    	static int timeSecOfLastbattle3 = 0;
+    	static int timeSecOfLastbattle4 = 0;
+    	static int timeSecOfLastbattle5 = 0;
+    	static int timeSecOfLastbattle6 = 0;
+    	static int timeSecOfLastbattle7 = 0;
+    	static int timeSecOfLastbattle8 = 0;
     
     // Current music mood for each player
     static string currentMusicMood1 = "economic";
@@ -63,19 +63,22 @@ scenario
     
     // Whether or not the game is paused
     static int gamePaused = 0;
+    
+    // Last second that the update was performed
+    static int lastUpdateSec = 0;
 
     // This functions runs only one time at the beginning of the game
     run_once
     {
         // Get the playerNumber from the XML file written by Rise_of_Music.exe
-        open_file("Rise_of_Music/current_game.xml");
-        string playerNumber = file_read_text("PLAYER_NUMBER");
+        open_file("Rise_of_Music/current_game/current_game.xml");
+        string playerNumberString = file_read_text("PLAYER_NUMBER");
         string color = file_read_text("PLAYER_COLOR");
         string version = file_read_text("VERSION");
         close_file();
         
         print_game_msg("Rise of Music v. " + version);
-        print_game_msg("Listening for music events from " + color + " player (ID=" + playerNumber + ")");
+        print_game_msg("Listening for music events from " + color + " player (ID=" + playerNumberString + ")");
     
         // Start the game with the ECONOMIC music mood
         writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC, 1);
@@ -93,7 +96,7 @@ scenario
     int currentTimeSec = time_sec();
     
     // This if statement will be true every UPDATE_TIME_SEC_DELTA seconds
-    if (currentTimeSec % UPDATE_TIME_SEC_DELTA)
+    if (currentTimeSec != lastUpdateSec  && currentTimeSec % UPDATE_TIME_SEC_DELTA == 0)
     {
         // Update each player's statistics and potentially their music mood
         updateForPlayer(1, previousTotalUnitsKilled1, previousTotalUnitsLost1, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle1, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood1);
@@ -104,6 +107,12 @@ scenario
         updateForPlayer(6, previousTotalUnitsKilled6, previousTotalUnitsLost6, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle6, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood6);
         updateForPlayer(7, previousTotalUnitsKilled7, previousTotalUnitsLost7, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle7, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood7);
         updateForPlayer(8, previousTotalUnitsKilled8, previousTotalUnitsLost8, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle8, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood8);
+        
+        // Set the last time we updated
+        lastUpdateSec = currentTimeSec;
+        
+        print_game_msg("num_units_killed(7): " + previousTotalUnitsKilled7);
+        print_game_msg("num_units_lost(7): " + previousTotalUnitsLost7);
     }
     
     // If the game is paused, but it wasn't paused last update
@@ -433,6 +442,48 @@ scenario
         // Write music mood to a file
         writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 8);
     }
+	
+	// Triggers when players lose
+    trigger(is_defeated(1))
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_LOSE, 1);
+    }
+    trigger(is_defeated(2))
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_LOSE, 2);
+    }
+    trigger(is_defeated(3))
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_LOSE, 3);
+    }
+    trigger(is_defeated(4))
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_LOSE, 4);
+    }
+    trigger(is_defeated(5))
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_LOSE, 5);
+    }
+    trigger(is_defeated(6))
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_LOSE, 6);
+    }
+    trigger(is_defeated(7))
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_LOSE, 7);
+    }
+    trigger(is_defeated(8))
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_LOSE, 8);
+    }
 }
 
 // Checks for music mood conditions for a specific player
@@ -459,7 +510,7 @@ int scenario updateForPlayer(int playerNumber, ref int previousTotalUnitsKilled,
                 currentMusicMood = "battle_victory";
         
                 // Write the music mood to a file
-                writeMusicMoodToFile("battle_victory");
+                writeMusicMoodToFile("battle_victory", playerNumber);
             }
         }
         else // Else, the player lost more than they killed
@@ -471,7 +522,7 @@ int scenario updateForPlayer(int playerNumber, ref int previousTotalUnitsKilled,
                 currentMusicMood = "battle_defeat";
             
                 // Write the music mood to a file
-                writeMusicMoodToFile("battle_defeat");
+                writeMusicMoodToFile("battle_defeat", playerNumber);
             }
         }
         
@@ -490,7 +541,7 @@ int scenario updateForPlayer(int playerNumber, ref int previousTotalUnitsKilled,
                 currentMusicMood = "economic";
              
                 // Write the music mood to a file
-                writeMusicMoodToFile("economic");
+                writeMusicMoodToFile("economic", playerNumber);
             }
         }
     }
@@ -510,7 +561,7 @@ int scenario writeMusicMoodToFile(string musicMood, int playerNumber)
     print_game_msg("Player " + playerNumber + " - music_mood=" + musicMood);
 
     // Open the file
-    open_file("Rise_of_Music\\players\\" + playerNumber + "music_mood.xml");
+    open_file("Rise_of_Music\\current_game\\players\\" + playerNumber + "\\music_mood.xml");
     
     if (musicMood == "economic")
     {
