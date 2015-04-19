@@ -63,7 +63,7 @@ namespace Rise_of_Music
 
             Console.WriteLine("Waiting for music mood info file...");
 
-            // Begin looking for a Rise_of_Music.xml file to read
+            // Begin looking for a music_mood.xml file to read
             new Thread(() =>
             {
                 while (true)
@@ -98,7 +98,7 @@ namespace Rise_of_Music
                                 musicPlayer.Play();
                             }
 
-                            // Remove the Rise_of_Music.xml
+                            // Remove the music_mood.xml
                             try
                             {
                                 // Delete it
@@ -106,7 +106,7 @@ namespace Rise_of_Music
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine("Unable to delete current \"Rise_of_Music.xml\" file.  Please delete file and restart.");
+                                Console.WriteLine("Unable to delete current \"music_mood.xml\" file.  Please delete file and restart.");
                             }
                         }
 
