@@ -1,10 +1,9 @@
-int scenario fifo(int newValue, ref int value0, ref int value1, ref int value2, ref int value3, ref int value4, ref int value5, ref int value6);
-int scenario printValues(int unitsKilledCount, int unitsLostCount, int buildingCount);
-int scenario writeMusicMoodToFile(string musicMood);
+int scenario updateForPlayer(int playerNumber, ref int previousTotalUnitsKilled, ref int previousTotalUnitsLost, int unitDeltaThreshold, ref int timeSecOfLastbattle, int currentTimeSec, int timeSecAfterBattleUntilEconomicMood, ref string currentMusicMood);
+int scenario writeMusicMoodToFile(string musicMood, int playerNumber);
 
 scenario
 {
-    // Constants
+    // =========================== Constants ===========================
     labels
     {
         UPDATE_TIME_SEC_DELTA = 12, // The number of seconds between each update
@@ -21,26 +20,46 @@ scenario
     }
 
     // ========================= Initial values =========================
-    // The last time that we updated all our values and checked for music mood change conditions
-    static int lastUpdateTimeSec = time_sec();
-
-    // The player's number
-    static int playerNumber = -1;//get_console_player(); // get_console_player() does not work in multiplayer for some sad reason.  :'(
-
-    // The total number of enemy units the player has killed
-    static int unitsKilledCount = 0;
-
-    // The total number of units the player has lost
-    static int unitsLostCount = 0;
+	
+	// Total number of units each player has killed
+	static int previousTotalUnitsKilled1 = 0;
+	static int previousTotalUnitsKilled2 = 0;
+	static int previousTotalUnitsKilled3 = 0;
+	static int previousTotalUnitsKilled4 = 0;
+	static int previousTotalUnitsKilled5 = 0;
+	static int previousTotalUnitsKilled6 = 0;
+	static int previousTotalUnitsKilled7 = 0;
+	static int previousTotalUnitsKilled8 = 0;
+	
+	// Total number of units each player has lost
+	static int previousTotalUnitsLost1 = 0;
+	static int previousTotalUnitsLost2 = 0;
+	static int previousTotalUnitsLost3 = 0;
+	static int previousTotalUnitsLost4 = 0;
+	static int previousTotalUnitsLost5 = 0;
+	static int previousTotalUnitsLost6 = 0;
+	static int previousTotalUnitsLost7 = 0;
+	static int previousTotalUnitsLost8 = 0;
+	
+	// Time of last battle for each player
+	static int timeSecOfLastbattle1 = 0;
+	static int timeSecOfLastbattle2 = 0;
+	static int timeSecOfLastbattle3 = 0;
+	static int timeSecOfLastbattle4 = 0;
+	static int timeSecOfLastbattle5 = 0;
+	static int timeSecOfLastbattle6 = 0;
+	static int timeSecOfLastbattle7 = 0;
+	static int timeSecOfLastbattle8 = 0;
     
-    // The current age the player is in
-    static int currentAge = 1;
-    
-    // The current music mood
-    static string currentMusicMood = MUSIC_MOOD_ECONOMIC;
-    
-    // Time since last battle
-    static int timeSecSinceLastbattle = 0;
+    // Current music mood for each player
+    static string currentMusicMood1 = "economic";
+    static string currentMusicMood2 = "economic";
+    static string currentMusicMood3 = "economic";
+    static string currentMusicMood4 = "economic";
+    static string currentMusicMood5 = "economic";
+    static string currentMusicMood6 = "economic";
+    static string currentMusicMood7 = "economic";
+    static string currentMusicMood8 = "economic";
     
     // Whether or not the game is paused
     static int gamePaused = 0;
@@ -49,8 +68,8 @@ scenario
     run_once
     {
         // Get the playerNumber from the XML file written by Rise_of_Music.exe
-        open_file("Rise_of_Music/config.xml");
-        playerNumber = (int)file_read_text("PLAYER_NUMBER");
+        open_file("Rise_of_Music/current_game.xml");
+        string playerNumber = file_read_text("PLAYER_NUMBER");
         string color = file_read_text("PLAYER_COLOR");
         string version = file_read_text("VERSION");
         close_file();
@@ -59,97 +78,46 @@ scenario
         print_game_msg("Listening for music events from " + color + " player (ID=" + playerNumber + ")");
     
         // Start the game with the ECONOMIC music mood
-        writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC);
+        writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC, 1);
+        writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC, 2);
+        writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC, 3);
+        writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC, 4);
+        writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC, 5);
+        writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC, 6);
+        writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC, 7);
+        writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC, 8);
     }
 
     // ========================= Main script body =========================
     // Get the current time
     int currentTimeSec = time_sec();
     
-    // If the current time is greater than the last update time + the delta
-    if (currentTimeSec > lastUpdateTimeSec + UPDATE_TIME_SEC_DELTA)
+    // This if statement will be true every UPDATE_TIME_SEC_DELTA seconds
+    if (currentTimeSec % UPDATE_TIME_SEC_DELTA)
     {
-        // Get the new values
-        int newUnitsKilledCount = num_units_killed(playerNumber);
-        int newUnitsLostCount = num_units_lost(playerNumber);
-        
-        // Get the deltas between old a new values
-        int unitsKilledCountDelta = newUnitsKilledCount - unitsKilledCount;
-        int unitsLostCountDelta = newUnitsLostCount - unitsLostCount;
-        
-        // If the player's units killed delta plus units lost delta is greather than the threshold
-        if ((unitsKilledCountDelta + unitsLostCountDelta) >= UNIT_DELTA_THRESHOLD)
-        {
-            // If the player has killed more than they lost
-            if (unitsKilledCountDelta >= unitsLostCountDelta)
-            {
-                // If the current music mood is not MUSIC_MOOD_BATTLE_VICTORY
-                if (currentMusicMood != MUSIC_MOOD_BATTLE_VICTORY)
-                {
-                    // Set the current music mood
-                    currentMusicMood = MUSIC_MOOD_BATTLE_VICTORY;
-            
-                    // Write the music mood to a file
-                    writeMusicMoodToFile(MUSIC_MOOD_BATTLE_VICTORY);
-                }
-            }
-            else // Else, the player lost more than they killed
-            {
-                // If the current music mood is not MUSIC_MOOD_BATTLE_DEFEAT
-                if (currentMusicMood != MUSIC_MOOD_BATTLE_DEFEAT)
-                {
-                    // Set the current music mood
-                    currentMusicMood = MUSIC_MOOD_BATTLE_DEFEAT;
-                
-                    // Write the music mood to a file
-                    writeMusicMoodToFile(MUSIC_MOOD_BATTLE_DEFEAT);
-                }
-            }
-            
-            // Set now as the time since last battle
-            timeSecSinceLastbattle = currentTimeSec;
-        }
-        else // The player is not currently fighting
-        {
-            // If the current time is > than time since last battle + the wait period after a battle
-            if (currentTimeSec > timeSecSinceLastBattle + TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD)
-            {
-                // If the current music mood is not MUSIC_MOOD_ECONOMIC
-                if (currentMusicMood != MUSIC_MOOD_ECONOMIC)
-                {
-                    // Set the current music mood
-                    currentMusicMood = MUSIC_MOOD_ECONOMIC;
-                 
-                    // Write the music mood to a file
-                    writeMusicMoodToFile(MUSIC_MOOD_ECONOMIC);
-                }
-            }
-        }
-        
-        // Update our values
-        unitsKilledCount = newUnitsKilledCount;
-        unitsLostCount = newUnitsLostCount;
-        lastUpdateTimeSec = currentTimeSec;
-    }
-    
-    // Gets the age the player is currently in
-    int age = get_current_age(playerNumber);
-    
-    // If the player has aged up
-    if (age > currentAge)
-    {
-        // Write music mood to a file
-        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP);
-        
-        // Set the current age
-        currentAge = age;
+        // Update each player's statistics and potentially their music mood
+        updateForPlayer(1, previousTotalUnitsKilled1, previousTotalUnitsLost1, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle1, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood1);
+        updateForPlayer(2, previousTotalUnitsKilled2, previousTotalUnitsLost2, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle2, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood2);
+        updateForPlayer(3, previousTotalUnitsKilled3, previousTotalUnitsLost3, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle3, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood3);
+        updateForPlayer(4, previousTotalUnitsKilled4, previousTotalUnitsLost4, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle4, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood4);
+        updateForPlayer(5, previousTotalUnitsKilled5, previousTotalUnitsLost5, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle5, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood5);
+        updateForPlayer(6, previousTotalUnitsKilled6, previousTotalUnitsLost6, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle6, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood6);
+        updateForPlayer(7, previousTotalUnitsKilled7, previousTotalUnitsLost7, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle7, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood7);
+        updateForPlayer(8, previousTotalUnitsKilled8, previousTotalUnitsLost8, UNIT_DELTA_THRESHOLD, timeSecOfLastbattle8, currentTimeSec, TIME_SEC_AFTER_BATTLE_UNTIL_ECONOMIC_MOOD, currentMusicMood8);
     }
     
     // If the game is paused, but it wasn't paused last update
     if (is_paused() && !gamePaused)
     {
         // Write this to file
-        writeMusicMoodToFile(MUSIC_MOOD_PAUSE);
+        writeMusicMoodToFile(MUSIC_MOOD_PAUSE, 1);
+        writeMusicMoodToFile(MUSIC_MOOD_PAUSE, 2);
+        writeMusicMoodToFile(MUSIC_MOOD_PAUSE, 3);
+        writeMusicMoodToFile(MUSIC_MOOD_PAUSE, 4);
+        writeMusicMoodToFile(MUSIC_MOOD_PAUSE, 5);
+        writeMusicMoodToFile(MUSIC_MOOD_PAUSE, 6);
+        writeMusicMoodToFile(MUSIC_MOOD_PAUSE, 7);
+        writeMusicMoodToFile(MUSIC_MOOD_PAUSE, 8);
             
         // The game is paused
         gamePaused = 1;
@@ -157,90 +125,429 @@ scenario
     else if (!is_paused() && gamePaused) // Else, if the game is no longer paused, but it was on the last update
     {
         // Write this to file
-        writeMusicMoodToFile(MUSIC_MOOD_UNPAUSE);
+        writeMusicMoodToFile(MUSIC_MOOD_UNPAUSE, 1);
+        writeMusicMoodToFile(MUSIC_MOOD_UNPAUSE, 2);
+        writeMusicMoodToFile(MUSIC_MOOD_UNPAUSE, 3);
+        writeMusicMoodToFile(MUSIC_MOOD_UNPAUSE, 4);
+        writeMusicMoodToFile(MUSIC_MOOD_UNPAUSE, 5);
+        writeMusicMoodToFile(MUSIC_MOOD_UNPAUSE, 6);
+        writeMusicMoodToFile(MUSIC_MOOD_UNPAUSE, 7);
+        writeMusicMoodToFile(MUSIC_MOOD_UNPAUSE, 8);
         
         // The game is not paused
         gamePaused = 0;
     }
     
-    // Fires when this player has been defeated
-    trigger(is_defeated(playerNumber))
+    // Triggers when player 1 ages up
+    trigger(get_current_age(1) == 2)
     {
-        // Set the music mood to "lose" for this player
-        writeMusicMoodToFile(MUSIC_MOOD_LOSE);
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 1);
     }
+    trigger(get_current_age(1) == 3)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 1);
+    }
+    trigger(get_current_age(1) == 4)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 1);
+    }
+    trigger(get_current_age(1) == 5)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 1);
+    }
+    trigger(get_current_age(1) == 6)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 1);
+    }
+    trigger(get_current_age(1) == 7)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 1);
+    }
+    trigger(get_current_age(1) == 8)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 1);
+    }
+    
+    // Triggers when player 2 ages up
+    trigger(get_current_age(2) == 2)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 2);
+    }
+    trigger(get_current_age(2) == 3)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 2);
+    }
+    trigger(get_current_age(2) == 4)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 2);
+    }
+    trigger(get_current_age(2) == 5)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 2);
+    }
+    trigger(get_current_age(2) == 6)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 2);
+    }
+    trigger(get_current_age(2) == 7)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 2);
+    }
+    trigger(get_current_age(2) == 8)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 2);
+    }
+    
+    // Triggers when player 3 ages up
+    trigger(get_current_age(3) == 2)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 3);
+    }
+    trigger(get_current_age(3) == 3)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 3);
+    }
+    trigger(get_current_age(3) == 4)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 3);
+    }
+    trigger(get_current_age(3) == 5)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 3);
+    }
+    trigger(get_current_age(3) == 6)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 3);
+    }
+    trigger(get_current_age(3) == 7)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 3);
+    }
+    trigger(get_current_age(3) == 8)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 3);
+    }
+    
+    // Triggers when player 4 ages up
+    trigger(get_current_age(4) == 2)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 4);
+    }
+    trigger(get_current_age(4) == 3)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 4);
+    }
+    trigger(get_current_age(4) == 4)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 4);
+    }
+    trigger(get_current_age(4) == 5)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 4);
+    }
+    trigger(get_current_age(4) == 6)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 4);
+    }
+    trigger(get_current_age(4) == 7)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 4);
+    }
+    trigger(get_current_age(4) == 8)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 4);
+    }
+    
+    // Triggers when player 5 ages up
+    trigger(get_current_age(5) == 2)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 5);
+    }
+    trigger(get_current_age(5) == 3)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 5);
+    }
+    trigger(get_current_age(5) == 4)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 5);
+    }
+    trigger(get_current_age(5) == 5)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 5);
+    }
+    trigger(get_current_age(5) == 6)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 5);
+    }
+    trigger(get_current_age(5) == 7)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 5);
+    }
+    trigger(get_current_age(5) == 8)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 5);
+    }
+    
+    // Triggers when player 6 ages up
+    trigger(get_current_age(6) == 2)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 6);
+    }
+    trigger(get_current_age(6) == 3)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 6);
+    }
+    trigger(get_current_age(6) == 4)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 6);
+    }
+    trigger(get_current_age(6) == 5)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 6);
+    }
+    trigger(get_current_age(6) == 6)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 6);
+    }
+    trigger(get_current_age(6) == 7)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 6);
+    }
+    trigger(get_current_age(6) == 8)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 6);
+    }
+    
+    // Triggers when player 7 ages up
+    trigger(get_current_age(7) == 2)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 7);
+    }
+    trigger(get_current_age(7) == 3)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 7);
+    }
+    trigger(get_current_age(7) == 4)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 7);
+    }
+    trigger(get_current_age(7) == 5)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 7);
+    }
+    trigger(get_current_age(7) == 6)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 7);
+    }
+    trigger(get_current_age(7) == 7)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 7);
+    }
+    trigger(get_current_age(7) == 8)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 7);
+    }
+    
+    // Triggers when player 8 ages up
+    trigger(get_current_age(8) == 2)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 8);
+    }
+    trigger(get_current_age(8) == 3)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 8);
+    }
+    trigger(get_current_age(8) == 4)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 8);
+    }
+    trigger(get_current_age(8) == 5)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 8);
+    }
+    trigger(get_current_age(8) == 6)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 8);
+    }
+    trigger(get_current_age(8) == 7)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 8);
+    }
+    trigger(get_current_age(8) == 8)
+    {
+        // Write music mood to a file
+        writeMusicMoodToFile(MUSIC_MOOD_AGE_UP, 8);
+    }
+}
+
+// Checks for music mood conditions for a specific player
+int scenario updateForPlayer(int playerNumber, ref int previousTotalUnitsKilled, ref int previousTotalUnitsLost, int unitDeltaThreshold, ref int timeSecOfLastbattle, int currentTimeSec, int timeSecAfterBattleUntilEconomicMood, ref string currentMusicMood)
+{
+    // Get the new values
+    int newTotalUnitsKilled = num_units_killed(playerNumber);
+    int newTotalUnitsLost = num_units_lost(playerNumber);
+	
+    // Get the deltas between old and new values
+    int totalUnitsKilledDelta = newTotalUnitsKilled - previousTotalUnitsKilled;
+    int totalUnitsLostDelta = newTotalUnitsLost - previousTotalUnitsLost;
+	
+    // If the player's units killed delta plus units lost delta is greater than the threshold
+    if ((totalUnitsKilledDelta + totalUnitsLostDelta) >= unitDeltaThreshold)
+    {
+        // If the player has killed more than they lost
+        if (totalUnitsKilledDelta >= totalUnitsLostDelta)
+        {
+            // If the current music mood is not "battle_victory"
+            if (currentMusicMood != "battle_victory")
+            {
+                // Set the current music mood
+                currentMusicMood = "battle_victory";
+        
+                // Write the music mood to a file
+                writeMusicMoodToFile("battle_victory");
+            }
+        }
+        else // Else, the player lost more than they killed
+        {
+            // If the current music mood is not "battle_defeat"
+            if (currentMusicMood != "battle_defeat")
+            {
+                // Set the current music mood
+                currentMusicMood = "battle_defeat";
+            
+                // Write the music mood to a file
+                writeMusicMoodToFile("battle_defeat");
+            }
+        }
+        
+        // Set now as the time since last battle
+        timeSecOfLastbattle = currentTimeSec;
+    }
+    else // The player is not currently fighting
+    {
+        // If the current time is > than time since last battle + the wait period after a battle
+        if (currentTimeSec > timeSecOfLastbattle + timeSecAfterBattleUntilEconomicMood)
+        {
+            // If the current music mood is not "economic"
+            if (currentMusicMood != "economic")
+            {
+                // Set the current music mood
+                currentMusicMood = "economic";
+             
+                // Write the music mood to a file
+                writeMusicMoodToFile("economic");
+            }
+        }
+    }
+    
+    // Update our values
+    previousTotalUnitsKilled = newTotalUnitsKilled;
+    previousTotalUnitsLost = newTotalUnitsLost;
+	
+	return 1;
 }
 
 // Writes music mood information to a file
-int scenario writeMusicMoodToFile(string musicMood)
+int scenario writeMusicMoodToFile(string musicMood, int playerNumber)
 {
+    // Debug log to console
     set_game_msg_color("red");
-    print_game_msg("music_mood=" + musicMood);
+    print_game_msg("Player " + playerNumber + " - music_mood=" + musicMood);
 
+    // Open the file
+    open_file("Rise_of_Music\\players\\" + playerNumber + "music_mood.xml");
+    
     if (musicMood == "economic")
     {
-        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "economic");
-        close_file();
+        
     }
     else if (musicMood == "battle_victory")
     {
-        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "battle_victory");
-        close_file();
     }
     else if (musicMood == "battle_defeat")
     {
-        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "battle_defeat");
-        close_file();
     }
     else if (musicMood == "win")
     {
-        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "win");
-        close_file();
     }
     else if (musicMood == "lose")
     {
-        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "lose");
-        close_file();
     }
     else if (musicMood == "age_up")
     {
-        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "age_up");
-        close_file();
     }
     else if (musicMood == "pause")
     {
-        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "pause");
-        close_file();
     }
     else if (musicMood == "unpause")
     {
-        open_file("Rise_of_Music\\music-mood.xml");
         file_write_text("MUSIC_MOOD", "unpause");
-        close_file();
-    }
-    else
-    {
-        // Return failure
-        return -1;
     }
     
-    // Return success
-    return 1;
-}
-
-// Print all values
-int scenario printValues(int unitsKilledCount, int unitsLostCount, int buildingCount)
-{
-    print_game_msg("unitsKilledCount: " + unitsKilledCount);
-    print_game_msg("unitsLostCount: " + unitsLostCount);
-    print_game_msg("buildingsCount: " + buildingCount);
+    // Close the file
+    close_file();
     
     // Return success
     return 1;
