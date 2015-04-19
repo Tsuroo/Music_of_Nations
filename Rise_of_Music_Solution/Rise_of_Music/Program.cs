@@ -120,6 +120,16 @@ namespace Rise_of_Music
                             currentUserDatFileLastWriteTime = File.GetLastWriteTime(currentUserDatFilePath);
                         }
 
+                        // Make sure the BHS file is in place.
+                        // This code is required because Rise of Nations will sometimes delete the BHS file in the workshop directory
+                        // for this mod...I'm not sure why, but it happens (sometimes) when a player clicks the checkbox to say
+                        // they are ready to play the game.  If they try to start the game and don't have the BHS file, they will go out
+                        // of sync AND they will not be hearing music.
+                        if (!File.Exists("Rise_of_Music.bhs"))
+                        {
+                            File.Copy("Rise_of_Music.bhs.bak", "Rise_of_Music.bhs");
+                        }
+
                         // Wait 1 second before checking again
                         Thread.Sleep(1000);
                     }
