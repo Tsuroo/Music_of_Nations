@@ -8,15 +8,13 @@ using System.Xml;
 
 namespace Rise_of_Music
 {
-    public class Config
+    public class ConfigXml
     {
         public Boolean UseCustomSoundtrack { get; set; }
-        public String PlayerNumber { get; set; }
-        public String PlayerColor { get; set; }
 
         private String ConfigFileLocation = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\config.xml";
 
-        public Config()
+        public ConfigXml()
         {   
             if (File.Exists(this.ConfigFileLocation))
             {
@@ -58,9 +56,6 @@ namespace Rise_of_Music
             {
                 xmlWriter.WriteStartElement("ROOT");
                 xmlWriter.WriteElementString("USE_CUSTOM_SOUNDTRACK", this.UseCustomSoundtrack.ToString());
-                xmlWriter.WriteElementString("PLAYER_NUMBER", this.PlayerNumber);
-                xmlWriter.WriteElementString("PLAYER_COLOR", this.PlayerColor);
-                xmlWriter.WriteElementString("VERSION", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
             }
         }
     }

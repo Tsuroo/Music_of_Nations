@@ -13,13 +13,15 @@ namespace Rise_of_Music
     {
         private static MusicPlayer musicPlayer = null;
 
-        private static String musicMoodXmlFilePath = null;
+        private static String riseOfMusicCurrentGameDirPath = null;
+
+        private static String playerNumber = null;
 
         private static String currentUserDatFilePath = null;
 
         private static DateTime currentUserDatFileLastWriteTime = DateTime.Now;
 
-        public static Config Config { get; set; }
+        public static ConfigXml Config { get; set; }
 
         /// <summary>
         /// The entry point to Rise of Music.
@@ -68,19 +70,19 @@ namespace Rise_of_Music
                 {
                     try
                     {
-                        // If a Rise_of_Music.xml file exists
-                        if (File.Exists(musicMoodXmlFilePath))
+                        // If a music_mood.xml file exists
+                        if (File.Exists(riseOfMusicCurrentGameDirPath +"players\\" + playerNumber + "\\music_mood.xml"))
                         {
                             // Open the XML document
                             XmlDocument xmlDocument = new XmlDocument();
 
                             try
                             {
-                                xmlDocument.Load(musicMoodXmlFilePath);
+                                xmlDocument.Load(riseOfMusicCurrentGameDirPath + "players\\" + playerNumber + "\\music_mood.xml");
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine("Failed to read Rise_of_Music.xml; trying again in one second.");
+                                Console.WriteLine("Failed to read music_mood.xml; trying again in one second.");
                                 continue;
                             }
 
@@ -100,7 +102,7 @@ namespace Rise_of_Music
                             try
                             {
                                 // Delete it
-                                File.Delete(musicMoodXmlFilePath);
+                                File.Delete(riseOfMusicCurrentGameDirPath + "players\\" + playerNumber + "\\music_mood.xml");
                             }
                             catch (Exception e)
                             {
@@ -140,6 +142,8 @@ namespace Rise_of_Music
 
         private static void SetPlayerColor()
         {
+            CurrentGameXml currentGameXml = new CurrentGameXml();
+
             Console.WriteLine("Color Options");
             Console.WriteLine("--------------");
             Console.WriteLine("Red        (1)");
@@ -169,34 +173,36 @@ namespace Rise_of_Music
                     switch (playerNumber)
                     {
                         case "1":
-                            Config.PlayerColor = "Red";
+                            currentGameXml.PlayerColor = "Red";
                             break;
                         case "2":
-                            Config.PlayerColor = "Blue";
+                            currentGameXml.PlayerColor = "Blue";
                             break;
                         case "3":
-                            Config.PlayerColor = "Purple";
+                            currentGameXml.PlayerColor = "Purple";
                             break;
                         case "4":
-                            Config.PlayerColor = "Green";
+                            currentGameXml.PlayerColor = "Green";
                             break;
                         case "5":
-                            Config.PlayerColor = "Yellow";
+                            currentGameXml.PlayerColor = "Yellow";
                             break;
                         case "6":
-                            Config.PlayerColor = "Light Blue";
+                            currentGameXml.PlayerColor = "Light Blue";
                             break;
                         case "7":
-                            Config.PlayerColor = "White";
+                            currentGameXml.PlayerColor = "White";
                             break;
                         case "8":
-                            Config.PlayerColor = "Orange";
+                            currentGameXml.PlayerColor = "Orange";
                             break;
                     }
 
+                    Program.playerNumber = playerNumber;
+
                     // Save to config file and break
-                    Config.PlayerNumber = playerNumber;
-                    Config.Save();
+                    currentGameXml.PlayerNumber = playerNumber;
+                    currentGameXml.Save();
                     break;
                 }
                 else
@@ -264,22 +270,33 @@ namespace Rise_of_Music
             // Create the directory
             Directory.CreateDirectory(@"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\");
 
-            Config = new Config();
+            Config = new ConfigXml();
 
-            // Create sounds directory
-            String battleDefeatMoodDir = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\battle_defeat\";
-            String battleVictoryMoodDir = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\battle_victory\";
-            String economicMoodDir = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\economic\";
-            String loseMoodDir = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\lose\";
-            String winMoodDir = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\win\";
-            Directory.CreateDirectory(battleDefeatMoodDir);
-            Directory.CreateDirectory(battleVictoryMoodDir);
-            Directory.CreateDirectory(economicMoodDir);
-            Directory.CreateDirectory(loseMoodDir);
-            Directory.CreateDirectory(winMoodDir);
+            // Create music mood directories
+            Directory.CreateDirectory(@"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\battle_defeat\");
+            Directory.CreateDirectory(@"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\battle_victory\");
+            Directory.CreateDirectory(@"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\economic\");
+            Directory.CreateDirectory(@"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\lose\");
+            Directory.CreateDirectory(@"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\sounds\tracks\win\");
 
-            // Get the Rise_of_Music.xml path
-            musicMoodXmlFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\music-mood.xml";
+            riseOfMusicCurrentGameDirPath = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\microsoft games\rise of nations\Rise_of_Music\current_game\";
+
+            // If a players dir exists
+            if (Directory.Exists(riseOfMusicCurrentGameDirPath))
+            {
+                // Delete everything
+                Directory.Delete(riseOfMusicCurrentGameDirPath, true);
+            }
+
+            // Create current game directories
+            Directory.CreateDirectory(riseOfMusicCurrentGameDirPath + @"players\1\");
+            Directory.CreateDirectory(riseOfMusicCurrentGameDirPath + @"players\2\");
+            Directory.CreateDirectory(riseOfMusicCurrentGameDirPath + @"players\3\");
+            Directory.CreateDirectory(riseOfMusicCurrentGameDirPath + @"players\4\");
+            Directory.CreateDirectory(riseOfMusicCurrentGameDirPath + @"players\5\");
+            Directory.CreateDirectory(riseOfMusicCurrentGameDirPath + @"players\6\");
+            Directory.CreateDirectory(riseOfMusicCurrentGameDirPath + @"players\7\");
+            Directory.CreateDirectory(riseOfMusicCurrentGameDirPath + @"players\8\");
 
             // Get the current user in Rise of Nations
             String currentUser = GetCurrentUsername();
@@ -312,21 +329,6 @@ namespace Rise_of_Music
             bool economicDirExists = Directory.Exists(economicDirPath);
             bool loseDirExists = Directory.Exists(loseDirPath);
             bool winDirExists = Directory.Exists(winDirPath);
-
-            // If a Rise_of_Music.xml file exists
-            if (File.Exists(musicMoodXmlFilePath))
-            {
-                try
-                {
-                    // Delete it
-                    File.Delete(musicMoodXmlFilePath);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Unable to delete current \"Rise_of_Music.xml\" file.  Please delete file and restart.");
-                    return false;
-                }
-            }
 
             // Set the current date modified for the current user DAT file
             currentUserDatFileLastWriteTime = File.GetLastWriteTime(currentUserDatFilePath);
