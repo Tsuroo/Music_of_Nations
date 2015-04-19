@@ -111,8 +111,9 @@ scenario
         // Set the last time we updated
         lastUpdateSec = currentTimeSec;
         
-        print_game_msg("num_units_killed(7): " + previousTotalUnitsKilled7);
-        print_game_msg("num_units_lost(7): " + previousTotalUnitsLost7);
+        // DEBUG OUTPUT
+        //print_game_msg("num_units_killed(7): " + previousTotalUnitsKilled7);
+        //print_game_msg("num_units_lost(7): " + previousTotalUnitsLost7);
     }
     
     // If the game is paused, but it wasn't paused last update
@@ -556,7 +557,7 @@ int scenario updateForPlayer(int playerNumber, ref int previousTotalUnitsKilled,
 // Writes music mood information to a file
 int scenario writeMusicMoodToFile(string musicMood, int playerNumber)
 {
-    // Debug log to console
+    // DEBUG OUTPUT
     set_game_msg_color("red");
     print_game_msg("Player " + playerNumber + " - music_mood=" + musicMood);
 
