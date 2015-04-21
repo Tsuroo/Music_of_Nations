@@ -13,7 +13,7 @@ mkdir Rise_of_Music_target\scenario\Scripts\Rise_of_Music
 :: Copy Rise of Music files
 copy Rise_of_Music\bin\Release\CSCore.dll Rise_of_Music_target\scenario\Scripts\Rise_of_Music\CSCore.dll
 copy Rise_of_Music\bin\Release\CSCore.xml Rise_of_Music_target\scenario\Scripts\Rise_of_Music\CSCore.xml
-copy Rise_of_Music\bin\Release\Rise_of_Music.exe Rise_of_Music_target\scenario\Scripts\Rise_of_Music\Rise_of_Music.exe
+copy "Rise_of_Music\bin\Release\Rise of Music.exe" "Rise_of_Music_target\scenario\Scripts\Rise_of_Music\Rise of Music.exe"
 copy ..\LICENSE Rise_of_Music_target\scenario\Scripts\Rise_of_Music\LICENSE
 copy ..\README.md Rise_of_Music_target\scenario\Scripts\Rise_of_Music\README.md
 copy ..\Rise_of_Music.bhs Rise_of_Music_target\scenario\Scripts\Rise_of_Music\Rise_of_Music.bhs
