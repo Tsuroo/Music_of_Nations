@@ -558,8 +558,8 @@ int scenario updateForPlayer(int playerNumber, ref int previousTotalUnitsKilled,
 int scenario writeMusicMoodToFile(string musicMood, int playerNumber)
 {
     // DEBUG OUTPUT
-    set_game_msg_color("red");
-    print_game_msg("Player " + playerNumber + " - music_mood=" + musicMood);
+    //set_game_msg_color("red");
+    //print_game_msg("Player " + playerNumber + " - music_mood=" + musicMood);
 
     // Open the file
     open_file("Rise_of_Music\\current_game\\players\\" + playerNumber + "\\music_mood.xml");
