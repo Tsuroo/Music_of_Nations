@@ -16,4 +16,5 @@ If your Rise of Nations installation is somewhere other than these two locations
 * C:\Program Files (x86)\Steam\SteamApps\common\Rise of Nations\sounds\tracks\
 * C:\Program Files\Steam\SteamApps\common\Rise of Nations\sounds\tracks\
 then you'll get a "file not found" exception.
+
 I have not fixed this, but a workaround is to copy the tracks folder from where your RoN is installed and copy that folder into those file paths.
