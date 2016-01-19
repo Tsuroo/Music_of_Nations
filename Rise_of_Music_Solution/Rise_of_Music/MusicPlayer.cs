@@ -1,4 +1,5 @@
-﻿using CSCore.SoundOut;
+﻿using CSCore;
+using CSCore.SoundOut;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -142,11 +143,13 @@ namespace Rise_of_Music
                 if (Environment.Is64BitOperatingSystem)
                 {
                     // Set the root path
+//                    riseOfNationsRootSoundsTracks = @"C:\Program Files (x86)\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
                     riseOfNationsRootSoundsTracks = @"C:\Program Files (x86)\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
                 }
                 else
                 {
                     // Set the root path
+//                    riseOfNationsRootSoundsTracks = @"C:\Program Files\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
                     riseOfNationsRootSoundsTracks = @"C:\Program Files\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
                 }
 
