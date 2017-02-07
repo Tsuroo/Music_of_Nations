@@ -1,6 +1,7 @@
 ﻿using CSCore.SoundOut;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -138,17 +139,25 @@ namespace Rise_of_Music
             {
                 String riseOfNationsRootSoundsTracks = null;
 
-                // If we're running in a 64-bit operating system
-                if (Environment.Is64BitOperatingSystem)
+                String steamLibraryPrefix = ConfigurationManager.AppSettings["steamLibraryPrefix"];
+                if (String.IsNullOrWhiteSpace(steamLibraryPrefix))
                 {
-                    // Set the root path
-                    riseOfNationsRootSoundsTracks = @"C:\Program Files (x86)\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
+                    // If we're running in a 64-bit operating system
+                    if (Environment.Is64BitOperatingSystem)
+                    {
+                        // Set the root path
+                        steamLibraryPrefix = @"C:\Program Files (x86)\Steam\";
+                    }
+                    else
+                    {
+                        // Set the root path
+                        steamLibraryPrefix = @"C:\Program Files\Steam\";
+                    }
                 }
-                else
-                {
-                    // Set the root path
-                    riseOfNationsRootSoundsTracks = @"C:\Program Files\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
-                }
+                
+                // Set the root path
+                // good way to concat the path is to use Path.Combine, which we can safely process the directory without mandating user to input trailing back-slash
+                riseOfNationsRootSoundsTracks = Path.Combine(steamLibraryPrefix, @"SteamApps\common\Rise of Nations\sounds\tracks\");
 
                 // battle_defeat music
                 List<AudioFile> battleDefeatAudioFiles = new List<AudioFile>();
