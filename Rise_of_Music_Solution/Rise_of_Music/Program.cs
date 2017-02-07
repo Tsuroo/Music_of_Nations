@@ -62,6 +62,8 @@ namespace Rise_of_Music
             musicPlayer.Volume = GetCurrentUserVolumeSetting();
 
             Console.WriteLine("Waiting for music mood info file...");
+            Console.WriteLine("To play win music press '~' three times in a row");
+            Console.WriteLine("To play lose music press right-control three times in a row");
 
             // Begin looking for a music_mood.xml file to read
             new Thread(() =>
