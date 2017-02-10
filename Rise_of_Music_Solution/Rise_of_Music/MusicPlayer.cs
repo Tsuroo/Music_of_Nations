@@ -143,17 +143,6 @@ namespace Rise_of_Music
                 String steamLibraryPrefix = ConfigurationManager.AppSettings["steamLibraryPrefix"];
                 if (String.IsNullOrWhiteSpace(steamLibraryPrefix))
                 {
-<<<<<<< HEAD
-                    // Set the root path
-//                    riseOfNationsRootSoundsTracks = @"C:\Program Files (x86)\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
-                    riseOfNationsRootSoundsTracks = @"C:\Program Files (x86)\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
-                }
-                else
-                {
-                    // Set the root path
-//                    riseOfNationsRootSoundsTracks = @"C:\Program Files\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
-                    riseOfNationsRootSoundsTracks = @"C:\Program Files\Steam\SteamApps\common\Rise of Nations\sounds\tracks\";
-=======
                     // If we're running in a 64-bit operating system
                     if (Environment.Is64BitOperatingSystem)
                     {
@@ -165,7 +154,6 @@ namespace Rise_of_Music
                         // Set the root path
                         steamLibraryPrefix = @"C:\Program Files\Steam\";
                     }
->>>>>>> refs/remotes/TypicalFooBar/master
                 }
                 
                 // Set the root path
