@@ -1,4 +1,5 @@
-﻿using CSCore.SoundOut;
+﻿using CSCore;
+using CSCore.SoundOut;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
